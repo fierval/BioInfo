@@ -60,9 +60,6 @@
     <None Include="findClumps.fsx" />
     <None Include="reverseCompl.fsx" />
     <None Include="minSkew.fsx" />
-    <Content Include="App.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="fuzzyMatch.fsx" />
   </ItemGroup>
   <ItemGroup>
