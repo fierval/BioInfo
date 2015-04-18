@@ -3,6 +3,8 @@ open System.Collections.Generic
 open System
 
 #load "fuzzyMatch.fsx"
+#load "reverseCompl.fsx"
+open ReverseCompl
 open FuzzyMatch
 
 /// <summary>
@@ -87,11 +89,7 @@ let getMutations (origKmers : Dictionary<string, int>) d =
     let mutIndices = idxes |> Seq.map (fun i -> mutationIndex n i) |> Seq.toArray
 
     // find all the mutations
-    seq {
-            for kvp in origKmers do
-                let mut = mutatePat kvp.Key mutIndices
-                yield! mut
-        }
+    origKmers.SelectMany(fun kvp -> mutatePat kvp.Key mutIndices)
             
 
 /// <summary>
@@ -100,12 +98,15 @@ let getMutations (origKmers : Dictionary<string, int>) d =
 /// <param name="s"></param>
 /// <param name="k"></param>
 /// <param name="d"></param>
-let findMostFreqMutations (s : string) k d =
+let findMostFreqMutationsUtil (withReverse : bool) (s : string) k d =
     let initial = kMersMutat s k d
     let mutations = HashSet(getMutations initial d).Except(initial.Keys)
 
     // not run the mutations
-    let mostFreq = mutations.ToDictionary((fun x -> x),(fun x -> countD s x d))
+    let mostFreq = mutations.ToDictionary((fun x -> x),(fun x -> countD s x d + if withReverse then countD s (revCompl x) d else 0))
     let all = initial.Concat(mostFreq).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<string, int>) -> kvp.Value))
     let max' = all.Max(fun kvp -> kvp.Value)
     all.Where(fun kvp -> kvp.Value = max').Select(fun kvp -> kvp.Key).ToArray()
+
+let findMostFreqMutations = findMostFreqMutationsUtil false
+let findMostFreqMutationsRev = findMostFreqMutationsUtil true
