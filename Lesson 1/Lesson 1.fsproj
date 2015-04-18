@@ -62,6 +62,7 @@
     <None Include="minSkew.fsx" />
     <None Include="fuzzyMatch.fsx" />
     <None Include="maxMutation.fsx" />
+    <None Include="maxMutationSlow.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

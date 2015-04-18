@@ -6,6 +6,7 @@ open System
 #load "reverseCompl.fsx"
 open ReverseCompl
 open FuzzyMatch
+open System.Diagnostics
 
 /// <summary>
 /// Generate a sequence  of (binary) numbers of size n
@@ -99,6 +100,8 @@ let getMutations (origKmers : Dictionary<string, int>) d =
 /// <param name="k"></param>
 /// <param name="d"></param>
 let findMostFreqMutationsUtil (withReverse : bool) (s : string) k d =
+    let sw = Stopwatch()
+    sw.Start()
     let initial = kMersMutat s k d
     let mutations = HashSet(getMutations initial d).Except(initial.Keys)
 
@@ -106,7 +109,9 @@ let findMostFreqMutationsUtil (withReverse : bool) (s : string) k d =
     let mostFreq = mutations.ToDictionary((fun x -> x),(fun x -> countD s x d + if withReverse then countD s (revCompl x) d else 0))
     let all = initial.Concat(mostFreq).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<string, int>) -> kvp.Value))
     let max' = all.Max(fun kvp -> kvp.Value)
-    all.Where(fun kvp -> kvp.Value = max').Select(fun kvp -> kvp.Key).ToArray()
+    let res = all.Where(fun kvp -> kvp.Value = max').Select(fun kvp -> kvp.Key).ToArray()
+    printfn "Elapsed: %s" (sw.Elapsed.ToString())
+    res
 
 let findMostFreqMutations = findMostFreqMutationsUtil false
 let findMostFreqMutationsRev = findMostFreqMutationsUtil true
