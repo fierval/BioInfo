@@ -1,7 +1,4 @@
-﻿open System
-open System.Linq
-open System.Collections.Generic
-
+﻿
 let patPos (s : string) (pat : string) = 
     0 |> 
     Seq.unfold 

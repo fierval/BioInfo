@@ -61,6 +61,7 @@
     <None Include="reverseCompl.fsx" />
     <None Include="minSkew.fsx" />
     <None Include="fuzzyMatch.fsx" />
+    <None Include="maxMutation.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

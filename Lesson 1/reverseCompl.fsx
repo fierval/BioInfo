@@ -1,6 +1,5 @@
 ﻿open System
 open System.Linq
-open System.Collections.Generic
 
 let compl = dict [('A', 'T'); ('C', 'G'); ('G', 'C'); ('T', 'A')]
 let revCompl (s : string) =

@@ -1,7 +1,7 @@
 ﻿open System
 open System.Linq
-open System.Collections.Generic
 open System.IO
+open System.Collections.Generic
 
 /// <summary>
 /// Hamming distance between two strings
@@ -32,7 +32,32 @@ let withMisMatch (s : string) (pat : string) d =
                             Some((if (hammingDist pat (s.Substring(i, pat.Length))) <= d then i else -1), (i+1)))
     pos |> Seq.where(fun p -> p > 0) |> Seq.toArray
 
+/// <summary>
+/// Count all occurences of pat in s where Hamming(substr, pat) <= d
+/// </summary>
+/// <param name="s"></param>
+/// <param name="pat"></param>
+/// <param name="d"></param>
+let countD (s : string) (pat : string) d =
+    let pos = withMisMatch s pat d
+    pos.Count(fun p -> p > 0)
+
+/// <summary>
+/// k-mers within one string and their counts, with a Hamming distance <= d
+/// </summary>
+/// <param name="s"></param>
+/// <param name="k"></param>
+let kMersMutat (s : string) k d =
+    let kmers = [0..s.Length - k].Select(fun i -> s.Substring(i, k))
+    let dic = HashSet(kmers).ToDictionary((fun x -> x),(fun x -> countD s x d))
+    dic
+
 let misMatchFile path =
     let lines = File.ReadAllLines path
     let pos = withMisMatch lines.[1] lines.[0] (int lines.[2]) |> Array.map (fun a -> a.ToString())
     File.WriteAllLines(@"c:\temp\sol5.txt", pos)
+
+let countDFile path =
+    let lines = File.ReadAllLines path
+    countD lines.[0] lines.[1] (int lines.[2]) 
+    
