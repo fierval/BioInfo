@@ -30,7 +30,7 @@ let withMisMatch (s : string) (pat : string) d =
                             None 
                         else 
                             Some((if (hammingDist pat (s.Substring(i, pat.Length))) <= d then i else -1), (i+1)))
-    pos |> Seq.where(fun p -> p > 0) |> Seq.toArray
+    pos |> Seq.where(fun p -> p >= 0) |> Seq.toArray
 
 /// <summary>
 /// Count all occurences of pat in s where Hamming(substr, pat) <= d
@@ -40,7 +40,7 @@ let withMisMatch (s : string) (pat : string) d =
 /// <param name="d"></param>
 let countD (s : string) (pat : string) d =
     let pos = withMisMatch s pat d
-    pos.Count(fun p -> p > 0)
+    pos.Count(fun p -> p >= 0)
 
 /// <summary>
 /// k-mers within one string and their counts, with a Hamming distance <= d
