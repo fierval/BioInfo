@@ -4,10 +4,8 @@
 #load "FSharp.Charting.fsx"
 
 open FSharp.Charting
-open NorthHorizon.Common.Xmp
 open System
 open System.Linq
-open System.Collections.Generic
 open System.IO
 
 /// <summary>
