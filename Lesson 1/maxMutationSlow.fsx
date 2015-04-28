@@ -34,12 +34,9 @@ let mutatePat (s : string) d =
             }
         else
             seq {
-                for j in [0..sub.Length - 1] do
-                    let c = sub.[j]
-                    let subSlice = if j = 0 then sub.[j+1..] elif j = sub.Length - 1 then sub.[..j-1] else sub.[0..j-1] + sub.[j+1..]
-                    let compl = alphabet.Except [c] |> Seq.toArray
-                    let mut = compl |> Seq.map (fun c -> mutateStr subSlice (d - 1)) |> Seq.collect(fun sq -> sq)
-                    yield! alphabet |> Seq.map (fun c -> mut |> Seq.map (fun st -> st.Insert(j, c.ToString()))) |> Seq.collect (fun s -> s) |> Seq.distinct
+                let compl = alphabet.Except [sub.[0]] |> Seq.toArray
+                let mut = compl |> Seq.map (fun c -> mutateStr sub.[1..] (d - 1)) |> Seq.collect(fun sq -> sq)
+                yield! alphabet |> Seq.map (fun c -> mut |> Seq.map (fun st -> sub.[0].ToString() + st)) |> Seq.collect (fun s -> s)
             }
     mutateStr s d |> Seq.distinct;;
 
