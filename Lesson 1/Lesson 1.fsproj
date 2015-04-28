@@ -61,7 +61,6 @@
     <None Include="reverseCompl.fsx" />
     <None Include="minSkew.fsx" />
     <None Include="fuzzyMatch.fsx" />
-    <None Include="maxMutation.fsx" />
     <None Include="maxMutationSlow.fsx" />
     <None Include="stringGen.fsx" />
   </ItemGroup>

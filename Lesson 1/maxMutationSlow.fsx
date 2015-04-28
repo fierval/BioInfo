@@ -62,7 +62,6 @@ let findMostFreqMutationsUtil (withReverse : bool) (s : string) k d =
     let initial = kMersMutat s k d
     let mutations = HashSet(getMutations initial d).Except(initial.Keys)
 
-    // not run the mutations
     let mostFreq = mutations.ToDictionary((fun x -> x),(fun x -> countD s x d + if withReverse then countD s (revCompl x) d else 0))
     let all = initial.Concat(mostFreq).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<string, int>) -> kvp.Value))
     let max' = all.Max(fun kvp -> kvp.Value)
