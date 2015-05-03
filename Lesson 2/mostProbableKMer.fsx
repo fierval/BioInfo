@@ -20,7 +20,12 @@ let findMostProbable (s : string) (profile : float [,]) =
                     |> Array.mapi (fun i ind -> profile.[ind, i])
                     |> Array.fold (fun state p -> state * p) 1.)
 
-    fst (probs |> Array.maxBy(fun (kmer, prob) -> prob))
+    let mostProbable = probs.OrderByDescending(fun (kmer, prob) -> prob).GroupBy(fun (kmer, prob) -> prob).First().Select(fun (kmer, prob) -> kmer).ToArray()
+    if mostProbable.Length > 1 then
+        let minindex = mostProbable.Select(fun kmer -> s.IndexOf(kmer)).Min()
+        s.Substring(minindex, k)
+    else
+        mostProbable.[0]
 
 let p = [|
             [|0.2; 0.2; 0.3; 0.2; 0.3|]

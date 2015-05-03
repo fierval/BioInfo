@@ -59,6 +59,7 @@
     <None Include="mostProbableKMer.fsx" />
     <Content Include="packages.config" />
     <None Include="environment.fsx" />
+    <None Include="regulatoryMotifs.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
