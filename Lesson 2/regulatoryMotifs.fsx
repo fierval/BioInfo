@@ -1,7 +1,6 @@
 ﻿
 open System
 open System.Linq
-open System.Collections.Generic
 open System.IO
 
 #load "environment.fsx"
