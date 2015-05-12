@@ -61,6 +61,7 @@
     <None Include="environment.fsx" />
     <None Include="regulatoryMotifs.fsx" />
     <None Include="randomizedMotifSearch.fsx" />
+    <None Include="gibbsSamplingMotifSearch.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

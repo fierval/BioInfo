@@ -6,12 +6,19 @@ open System.Diagnostics
 #load "mostProbableKMer.fsx"
 #load "regulatoryMotifs.fsx"
 
+#load "randomizedMotifSearch.fsx"
+#load "..\packages\MathNet.Numerics.FSharp.3.6.0\MathNet.Numerics.fsx"
+
+open MathNet.Numerics.Random
+
 open RegulatoryMotifs
 open MostProbableKMer
 
 let sw = Stopwatch()
 
-let rnd = Random(int DateTime.Now.Ticks)
+let rndSeed = RandomSeed.Robust()
+let rnd = Random.mersenneTwisterSeed rndSeed
+
 let init2D (arr : 'a [][]) =
     let rows = arr.Length
     let cols = arr.[0].Length

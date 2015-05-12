@@ -5,19 +5,29 @@ open System.Diagnostics
 open System.Collections.Generic
 
 #load "randomizedMotifSearch.fsx"
+#load "..\packages\MathNet.Numerics.FSharp.3.6.0\MathNet.Numerics.fsx"
+
+open MathNet.Numerics.Random
 
 open RandomizedMotifSearch
 open RegulatoryMotifs
 open MostProbableKMer
 
+let stackV (a1: 'a[,]) (a2: 'a[,]) =
+    let a1l1,a1l2,a2l1,a2l2 = (Array2D.length1 a1),(Array2D.length2 a1),(Array2D.length1 a2),(Array2D.length2 a2)
+    if a1l2 <> a2l2 then failwith "arrays have different column sizes"
+    let result = Array2D.zeroCreate (a1l1 + a2l1) a1l2
+    Array2D.blit a1 0 0 result 0 0 a1l1 a1l2
+    Array2D.blit a2 0 0 result a1l1 0 a2l1 a2l2
+    result
+        
 /// <summary>
 /// compute probabilities of all k-mers in the string, given a profile
 /// </summary>
 /// <param name="s"></param>
 /// <param name="profile"></param>
-let kmerProbs (s : string) (profile : float [,]) =
+let kmerProbs (kmers : string []) (profile : float [,]) =
     let k = Array2D.length2 profile
-    let kmers = [0..s.Length - k].Select(fun i -> s.Substring(i, k)).Distinct().ToArray()
     let probs = 
         kmers 
         |> Array.map 
@@ -44,26 +54,48 @@ let gibbsSample (rnd : Random) (probs : (string * float) []) =
     fst probs.[rollUntilAccepted (rnd.Next(0, len))]
 
 
-let gibbsSamplingMotifSearch (dna : string []) k iters =
+let gibbsSamplingMotifSearch (dna : string []) k iters rndStarts =
     let t = dna.Length
+    let kmers = dna |> Array.map(fun s -> [0..s.Length - k].Select(fun i -> s.Substring(i, k)).Distinct().ToArray())
 
-    let rnd = Random(int DateTime.Now.Ticks)
     let len = dna.[0].Length - k
+    let rndSeed = RandomSeed.Robust()
+    let rnd = Random.mersenneTwisterSeed rndSeed
 
-    let firstMotifs = [|1..t|] |> Array.map (fun i -> rnd.Next(0, len)) |> Array.mapi (fun i p -> dna.[i].Substring(p, k) |> toInts)
-    let bestMotifs = Array2D.init t k (fun i j -> firstMotifs.[i].[j])
-    let bestScore = score bestMotifs
+    let runSingle () = 
+        let firstMotifs = [|1..t|] |> Array.map (fun i -> rnd.Next(0, len)) |> Array.mapi (fun i p -> dna.[i].Substring(p, k) |> toInts)
+        let bestMotifs = array2D firstMotifs
+        let bestScore = score bestMotifs
 
-    let rec runSampler (motifs : int [,]) (bestMotifs : int [,]) bestScore n =
-        if n = 0 then motifs
-        else
-            let except = rnd.Next(0, t)
-            let profileMotifs = array2D [|motifs.[0..except, 0..] |> Seq.cast; motifs.[except+1.., 0..] |> Seq.cast |]
-            let profile = createProfile profileMotifs
-            let probs = kmerProbs dna.[except] profile
-            let motif = gibbsSample rnd probs |> toInts
-            let curMotifs = array2D [|motifs.[0..except, 0..] |> Seq.cast; [|motif|] |> init2D |> Seq.cast; motifs.[except+1.., 0..] |> Seq.cast|]
-            let curScore = score motifs
+        let rec runSampler (motifs : int [,]) (bestMotifs : int [,]) bestScore n =
+            if n = 0 then bestScore, bestMotifs
+            else
+                let except = rnd.Next(0, t)
+                let profileMotifs = stackV motifs.[0..except-1, *] motifs.[except+1.., *] 
+                let profile = createProfile profileMotifs
+                let probs = kmerProbs kmers.[except] profile
+                let motif = array2D [|gibbsSample rnd probs |> toInts|]
+                let curMotifs = motifs.[except+1.., *] |> stackV motif  |> stackV motifs.[0..except-1, *]  
+                let curScore = score motifs
 
-            runSampler curMotifs (if curScore < bestScore then curMotifs else bestMotifs) (if curScore < bestScore then curScore else bestScore) (n - 1)
-    runSampler bestMotifs bestMotifs bestScore iters                
+                runSampler curMotifs (if curScore < bestScore then curMotifs else bestMotifs) (if curScore < bestScore then curScore else bestScore) (n - 1)
+        runSampler bestMotifs bestMotifs bestScore iters
+
+    let scoresMotifs = [1..rndStarts].AsParallel().Select(fun _ -> runSingle()).ToArray()
+        
+    let sc, motifs = scoresMotifs |> Array.minBy (fun (s, m) -> s)
+    sc, [|0..t-1|] |> Array.map (fun m -> toStr motifs.[m, *])
+
+
+let gibbsSamplingFile file =
+    let lines = File.ReadAllLines(file)
+    let ktIters = lines.[0].Split(' ') |> Array.map int
+    let k, _, iters = ktIters.[0], ktIters.[1], ktIters.[2]
+    let rndStarts = 20
+    let dna = lines.[1..]
+    sw.Reset()
+    sw.Start()
+    let sc, motifs = gibbsSamplingMotifSearch dna k iters rndStarts
+    sw.Stop()
+    printfn "Elapsed: %s" (sw.Elapsed.ToString())
+    File.WriteAllLines(@"c:\temp\sol7.txt", motifs)
