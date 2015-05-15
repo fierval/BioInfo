@@ -6,7 +6,7 @@
 open System.Linq
 open System.IO
 
-let alphabet = dict [('A', 0); ('C', 1); ('G', 2); ('T', 3)]
+let alphabet = Map.ofList [('A', 0); ('C', 1); ('G', 2); ('T', 3)]
 
 let findMostProbable (s : string) (profile : float [,]) =
     let k = Array2D.length2 profile
@@ -38,5 +38,5 @@ let s = "ACCTGTTTATTGCCTAAGTTCCGAACAAACCCAATATAGCCCGAGGGCCT"
 let findMostProbableFile fileName =
     let lines = File.ReadAllLines(fileName)
     let profs = lines.[2..] |> Array.map(fun s -> s.Trim().Split(' '))
-    let profile = Array2D.init 4 (int lines.[1]) (fun i j -> float profs.[i].[j])
+    let profile = array2D profs |> Array2D.map float
     findMostProbable lines.[0] profile

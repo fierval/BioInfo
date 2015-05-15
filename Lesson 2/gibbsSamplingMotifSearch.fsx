@@ -1,8 +1,6 @@
 ﻿open System
 open System.Linq
 open System.IO
-open System.Diagnostics
-open System.Collections.Generic
 
 #load "randomizedMotifSearch.fsx"
 #load "..\packages\MathNet.Numerics.FSharp.3.6.0\MathNet.Numerics.fsx"
