@@ -19,12 +19,6 @@ let sw = Stopwatch()
 let rndSeed = RandomSeed.Robust()
 let rnd = Random.mersenneTwisterSeed rndSeed
 
-let init2D (arr : 'a [][]) =
-    let rows = arr.Length
-    let cols = arr.[0].Length
-
-    Array2D.init rows cols (fun i j -> arr.[i].[j])
-
 let createProfile (motifs : int[,]) =
     let k = Array2D.length2 motifs
     let t = Array2D.length1 motifs
@@ -63,7 +57,7 @@ let randomizedMotifs (dna : string []) k iters =
         let profile = createProfile bestMotifs
 
         let rec findBest bestScore profile =
-            let motifs = dna |> Array.map (fun s -> findMostProbable s profile |> toInts) |> init2D
+            let motifs = dna |> Array.map (fun s -> findMostProbable s profile |> toInts) |> array2D
             let curScore = score motifs
             if curScore = bestScore then
                 curScore, motifs
