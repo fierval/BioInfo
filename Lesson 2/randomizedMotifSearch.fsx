@@ -14,36 +14,39 @@ open MathNet.Numerics.Random
 open RegulatoryMotifs
 open MostProbableKMer
 
-let sw = Stopwatch()
+let stackV (a1: 'a[,]) (a2: 'a[,]) =
+    let a1l1,a1l2,a2l1,a2l2 = (Array2D.length1 a1),(Array2D.length2 a1),(Array2D.length1 a2),(Array2D.length2 a2)
+    if a1l2 <> a2l2 then failwith "arrays have different column sizes"
+    let result = Array2D.zeroCreate (a1l1 + a2l1) a1l2
+    Array2D.blit a1 0 0 result 0 0 a1l1 a1l2
+    Array2D.blit a2 0 0 result a1l1 0 a2l1 a2l2
+    result
 
-let rndSeed = RandomSeed.Robust()
-let rnd = Random.mersenneTwisterSeed rndSeed
+let sw = Stopwatch()
 
 let createProfile (motifs : int[,]) =
     let k = Array2D.length2 motifs
-    let t = Array2D.length1 motifs
-    let completeSet = [0..3]
-    let tmp = 
-        [|0..Array2D.length2 motifs - 1|] 
+    let t = Array2D.length1 motifs + 4
+
+    let appendLaplace () =
+        let As = Array.zeroCreate k
+        let rest = [|yield As; for i = 1 to 3 do yield As |> Array.map (fun a -> a + i) |] |> array2D
+        stackV motifs rest
+    
+    let m = appendLaplace()
+    let profile = 
+        [|0..k - 1|] 
         |> Array.map 
-            (fun col -> motifs.[0..,col].GroupBy(fun c -> c).OrderBy(fun gr -> gr.Key).Select(fun gr -> gr.Key, float(gr.Count() + 1) / float(t + 4)).ToArray())
+            (fun col -> m.[0..,col].GroupBy(fun c -> c).OrderBy(fun gr -> gr.Key).Select(fun gr -> gr.Key, float(gr.Count()) / float t).ToArray())
             
-    let pseudoCount = 1. / (float t + 4.)
-    let profile =
-        [|for row in tmp do
-            let keys = row |> Array.map(fun (e, c) -> e)
-            let missing = completeSet.Except(keys).ToArray()
-            if missing.Length = 0 then yield row
-            else
-                yield missing |> Array.map(fun k -> (k, pseudoCount)) |> Array.append row |> Array.sortBy (fun (e, k) -> e)
-            
-        |]      
     Array2D.init 4 k (fun i j -> snd profile.[j].[i])
     
 // search for motifs by making random selections
 // iters - how many iterations before stopping
 let randomizedMotifs (dna : string []) k iters =
     let t = dna.Length
+    let rndSeed = RandomSeed.Robust()
+    let rnd = Random.mersenneTwisterSeed rndSeed
 
     // core of the algorithm:
     // select random motifs from each dna string

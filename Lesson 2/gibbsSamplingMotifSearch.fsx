@@ -11,14 +11,9 @@ open RandomizedMotifSearch
 open RegulatoryMotifs
 open MostProbableKMer
 
-let stackV (a1: 'a[,]) (a2: 'a[,]) =
-    let a1l1,a1l2,a2l1,a2l2 = (Array2D.length1 a1),(Array2D.length2 a1),(Array2D.length1 a2),(Array2D.length2 a2)
-    if a1l2 <> a2l2 then failwith "arrays have different column sizes"
-    let result = Array2D.zeroCreate (a1l1 + a2l1) a1l2
-    Array2D.blit a1 0 0 result 0 0 a1l1 a1l2
-    Array2D.blit a2 0 0 result a1l1 0 a2l1 a2l2
-    result
-        
+let rndSeed = RandomSeed.Robust()
+let rnd = Random.mersenneTwisterSeed rndSeed
+
 /// <summary>
 /// compute probabilities of all k-mers in the string, given a profile
 /// </summary>
@@ -57,8 +52,6 @@ let gibbsSamplingMotifSearch (dna : string []) k iters rndStarts =
     let kmers = dna |> Array.map(fun s -> [0..s.Length - k].Select(fun i -> s.Substring(i, k)).Distinct().ToArray())
 
     let len = dna.[0].Length - k
-    let rndSeed = RandomSeed.Robust()
-    let rnd = Random.mersenneTwisterSeed rndSeed
 
     let runSingle () = 
         let firstMotifs = [|1..t|] |> Array.map (fun i -> rnd.Next(0, len)) |> Array.mapi (fun i p -> dna.[i].Substring(p, k) |> toInts)
