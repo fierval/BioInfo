@@ -73,8 +73,10 @@ let gibbsSamplingMotifSearch (dna : string []) k iters rndStarts =
         runSampler bestMotifs bestMotifs bestScore iters
 
     let scoresMotifs = [1..rndStarts].AsParallel().Select(fun _ -> runSingle()).ToArray()
+    
+    // if we have more than one sequence of the same score - select the most frequent one    
+    let sc, motifs = scoresMotifs |> Array.minBy (fun (sc, m) -> sc)
         
-    let sc, motifs = scoresMotifs |> Array.minBy (fun (s, m) -> s)
     sc, [|0..t-1|] |> Array.map (fun m -> toStr motifs.[m, *])
 
 
