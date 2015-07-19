@@ -34,7 +34,7 @@ let kmerProbs (kmers : string []) (profile : float [,]) =
 
 let gibbsSample (rnd : Random) (probs : (string * float) []) =
     
-    let sumall = probs |> Seq.map(fun (k, v) -> v) |> Seq.sum
+    let sumall = probs |> Array.sumBy (fun (s, p) -> p)
     let prs = probs |> Array.map (fun (k, v) -> k, v / sumall)
     let len = probs.Length
 
@@ -49,12 +49,19 @@ let gibbsSample (rnd : Random) (probs : (string * float) []) =
 
 let gibbsSamplingMotifSearch (dna : string []) k iters rndStarts =
     let t = dna.Length
-    let kmers = dna |> Array.map(fun s -> [0..s.Length - k].Select(fun i -> s.Substring(i, k)).Distinct().ToArray())
+    let kmers = 
+        dna 
+        |> Array.map(fun s -> 
+                        [0..s.Length - k]
+                            .Select(fun i -> s.Substring(i, k)).Distinct().ToArray())
 
     let len = dna.[0].Length - k
 
     let runSingle () = 
-        let firstMotifs = [|1..t|] |> Array.map (fun i -> rnd.Next(0, len)) |> Array.mapi (fun i p -> dna.[i].Substring(p, k) |> toInts)
+        let firstMotifs = 
+            [|1..t|] 
+            |> Array.map (fun i -> rnd.Next(0, len)) 
+            |> Array.mapi (fun i p -> dna.[i].Substring(p, k) |> toInts)
         let bestMotifs = array2D firstMotifs
         let bestScore = score bestMotifs
 
@@ -69,7 +76,11 @@ let gibbsSamplingMotifSearch (dna : string []) k iters rndStarts =
                 let curMotifs = motifs.[except+1.., *] |> stackV motif  |> stackV motifs.[0..except-1, *]  
                 let curScore = score motifs
 
-                runSampler curMotifs (if curScore < bestScore then curMotifs else bestMotifs) (if curScore < bestScore then curScore else bestScore) (n - 1)
+                runSampler curMotifs 
+                    (if curScore < bestScore then curMotifs else bestMotifs) 
+                    (if curScore < bestScore then curScore else bestScore) 
+                    (n - 1)
+
         runSampler bestMotifs bestMotifs bestScore iters
 
     let scoresMotifs = [1..rndStarts].AsParallel().Select(fun _ -> runSingle()).ToArray()

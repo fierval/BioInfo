@@ -6,7 +6,7 @@
 open System.Linq
 open System.IO
 
-let alphabet = Map.ofList [('A', 0); ('C', 1); ('G', 2); ('T', 3)]
+let alphabet = dict [('A', 0); ('C', 1); ('G', 2); ('T', 3)]
 
 let findMostProbable (s : string) (profile : float [,]) =
     let k = Array2D.length2 profile

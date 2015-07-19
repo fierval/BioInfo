@@ -37,9 +37,9 @@ let createProfile (motifs : int[,]) =
     let profile = 
         [|0..k - 1|] 
         |> Array.map 
-            (fun col -> m.[0..,col].GroupBy(fun c -> c).OrderBy(fun gr -> gr.Key).Select(fun gr -> gr.Key, float(gr.Count()) / float t).ToArray())
+            (fun col -> m.[0..,col].GroupBy(fun c -> c).OrderBy(fun gr -> gr.Key).Select(fun gr -> float(gr.Count()) / float t).ToArray())
             
-    Array2D.init 4 k (fun i j -> snd profile.[j].[i])
+    Array2D.init 4 k (fun i j -> profile.[j].[i])
     
 // search for motifs by making random selections
 // iters - how many iterations before stopping
