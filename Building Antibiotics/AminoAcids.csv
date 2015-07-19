@@ -23,4 +23,4 @@ Glx,Z,Gln or Glu
 Xle,J,Leu or Ile
 Sec,U,Selenocysteine(UGA)
 Pyl,O,Pyrrolysine(UAG)
-Stop,X,Stop
+Stop,,Stop
