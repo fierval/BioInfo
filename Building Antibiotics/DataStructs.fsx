@@ -16,7 +16,9 @@ let strInAlphabet (letters : char []) = (letters  |> Seq.filter inAlphabet |> Se
 
 
 let getDictFromCsv csv =
-    let lines = File.ReadAllLines(csv).Select(fun l -> l.Split(',').Select(fun s -> s.Trim()).ToArray()).ToArray()
+    let lines = 
+        File.ReadAllLines(csv) 
+        |> Array.map(fun l -> l.Split(',') |> Array.map(fun s -> s.Trim()))
     lines.ToDictionary((fun l -> l.[0]), (fun (l : string []) -> l.[1]))
 
 let codonAminoAcid = getDictFromCsv (Path.Combine(__SOURCE_DIRECTORY__, "CodonAminoAcid.csv"))
