@@ -9,6 +9,10 @@ let inAlphabet = function
     | 'A' | 'C' | 'U' | 'G' -> true
     |_ -> false
 
+let inDnaAlphabet = function
+    | 'A' | 'C' | 'T' | 'G' -> true
+    |_ -> false
+    
 let toRna (dna : char []) =
     dna |> Array.map (fun c -> if c <> 'T' then c else 'U')
 

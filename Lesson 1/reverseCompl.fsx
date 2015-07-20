@@ -3,4 +3,7 @@ open System.Linq
 
 let compl = dict [('A', 'T'); ('C', 'G'); ('G', 'C'); ('T', 'A')]
 let revCompl (s : string) =
-    s.ToUpper().Select(fun c -> compl.[c]).Reverse().Aggregate(String.Empty, (fun s c -> s + c.ToString()))
+    string (String(s.Select(fun c -> compl.[c]).Reverse().ToArray()))
+
+let complRev (s : string) = 
+    string (String(s.Reverse() |> Seq.map (fun c -> compl.[c]) |> Seq.toArray))
