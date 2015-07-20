@@ -23,8 +23,7 @@ let codonAminoAcid = getDictFromCsv (Path.Combine(__SOURCE_DIRECTORY__, "CodonAm
 let aminoAcidOneLetter = getDictFromCsv (Path.Combine(__SOURCE_DIRECTORY__, "AminoAcids.csv"))
 
 let toCodones (rna : string) =
-    let addition = if rna.Length % 3 = 0 then 0 else 3
-    let codones : string [] = Array.zeroCreate ((rna.Length + addition) / 3)
-    for i = 0 to rna.Length - 1 do
+    let codones : string [] = Array.zeroCreate (rna.Length / 3)
+    for i = 0 to codones.Length * 3 - 1 do
         codones.[i/3] <- codones.[i/3] + rna.[i].ToString()
     codones
