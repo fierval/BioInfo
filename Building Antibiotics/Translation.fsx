@@ -16,11 +16,15 @@ let toRna (dna : string) =
 let toDna (rna : string) =
     rna |> String.map (fun c -> if c = 'U' then 'T' else c)
 
-let translate (rna : string) =
+// not sure what to do with the "stop" nucleotide, so...
+let translateKeepStop keepStop (rna : string)  =
     let codones = toCodones rna
-    let aminos = codones.Select(fun c -> aminoAcidOneLetter.[codonAminoAcid.[c]]).TakeWhile(fun c -> c <> "X")
+    let aminos = codones.Select(fun c -> aminoAcidOneLetter.[codonAminoAcid.[c]])
+    let res = if keepStop then aminos.TakeWhile(fun c -> c <> "X") else aminos
 
-    aminos |> Seq.fold (fun st a -> st + a) String.Empty
+    res |> Seq.fold (fun st a -> st + a) String.Empty
+
+let translate = translateKeepStop false
             
 let translateFile file =
     let rna = File.ReadAllText(file).Trim()
@@ -36,13 +40,21 @@ let findEncodingSubstr (dna : string) (peptide : string) =
         seq {
             for i = 0 to 2 do
                 let strRna = rna.Substring(i)
-                for idx = 0 to strRna.Length - peptide.Length - 1 do
-                    let sub = strRna.[idx..idx + peptide.Length - 1]
+                for idx in i..3..strRna.Length - 3 * peptide.Length do
+                    let sub = strRna.[idx..idx + 3 * peptide.Length - 1]
                     let subPeptide = translate sub
                     if subPeptide = peptide then yield sub
         }
 
     let straights = findSubstrs rna |> Seq.map toDna
-    let revs = findSubstrs revComplDna |> Seq.map toDna |> Seq.map ReverseCompl.complRev
+    let revs = findSubstrs revRna |> Seq.map toDna |> Seq.map ReverseCompl.complRev
 
     [|yield! straights; yield! revs|]
+
+let findEncodingSubstrFile file =
+    let outf = @"c:\temp\ant2.txt"
+    let lines = File.ReadAllLines(file)
+    let dna = lines.[0].Trim()
+    let peptide = lines.[1].Trim()
+    let seqs = findEncodingSubstr dna peptide |> Seq.toArray
+    File.WriteAllLines(outf, seqs)
