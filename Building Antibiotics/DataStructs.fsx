@@ -33,7 +33,7 @@ let aminoAcidOneLetter = getDict "AminoAcids.csv"
 let aminoAcidOneLetterIntegerMass = 
     (getDict "IntegerMass.csv")
         .Select(fun kvp -> (kvp.Key, int kvp.Value))
-        .ToDictionary((fun (k, v) -> k), (fun (k, v) -> v))
+        .ToDictionary((fun (k, v) -> k.[0]), (fun (k, v) -> v))
 
 let toCodones (rna : string) =
     let codones : string [] = Array.zeroCreate (rna.Length / 3)
