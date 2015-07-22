@@ -53,6 +53,7 @@
     <None Include="AminoAcids.csv" />
     <None Include="CodonAminoAcid.csv" />
     <None Include="Translation.fsx" />
+    <None Include="IntegerMass.csv" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

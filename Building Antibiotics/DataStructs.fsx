@@ -25,8 +25,15 @@ let getDictFromCsv csv =
         |> Array.map(fun l -> l.Split(',') |> Array.map(fun s -> s.Trim()))
     lines.ToDictionary((fun l -> l.[0]), (fun (l : string []) -> l.[1]))
 
-let codonAminoAcid = getDictFromCsv (Path.Combine(__SOURCE_DIRECTORY__, "CodonAminoAcid.csv"))
-let aminoAcidOneLetter = getDictFromCsv (Path.Combine(__SOURCE_DIRECTORY__, "AminoAcids.csv"))
+let csvDict csvFile = Path.Combine(__SOURCE_DIRECTORY__, csvFile)
+let getDict = csvDict >> getDictFromCsv
+
+let codonAminoAcid =  getDict  "CodonAminoAcid.csv"
+let aminoAcidOneLetter = getDict "AminoAcids.csv"
+let aminoAcidOneLetterIntegerMass = 
+    (getDict "IntegerMass.csv")
+        .Select(fun kvp -> (kvp.Key, int kvp.Value))
+        .ToDictionary((fun (k, v) -> k), (fun (k, v) -> v))
 
 let toCodones (rna : string) =
     let codones : string [] = Array.zeroCreate (rna.Length / 3)
