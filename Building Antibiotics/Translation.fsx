@@ -77,4 +77,21 @@ let cyclospectrum (peptide : string) =
                 let tailsum = (Array.sum masses.[0..i-headpart.Length])
                 yield tailsum + headsum
         }    
-    [0..peptide.Length - 1] |> Seq.collect generateSpectrum
+    let subspec = [0..peptide.Length - 2] |> Seq.collect generateSpectrum |> Seq.sort
+    seq {yield 0; yield! subspec; yield Array.sum masses}
+
+
+// for debugging. Generate sub-arrays of characters from a string
+let generateSpectrum (peptide : string) i =
+    let masses = peptide.ToCharArray()
+    seq {
+        for j = 0 to masses.Length - i - 1 do
+            yield String(masses.[j..j+i])
+        
+        // cyclical
+        for j = masses.Length - i to masses.Length - 1 do
+            let headpart = masses.[j..]
+            let headsum = headpart
+            let tailsum = masses.[0..i-headpart.Length]
+            yield String(headsum) + String(tailsum)
+    }    
