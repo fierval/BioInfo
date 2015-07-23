@@ -7,7 +7,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lesson 1", "Lesson 1\Lesson
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lesson 2", "Lesson 2\Lesson 2.fsproj", "{B6230921-B0B1-42AA-86D6-BFF24D597B87}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Building Antibiotics", "Building Antibiotics\Building Antibiotics.fsproj", "{9A29D57A-40FB-4F4B-A964-1299913EB8FE}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Chapter 2 Antibiotics", "Building Antibiotics\Chapter 2 Antibiotics.fsproj", "{9A29D57A-40FB-4F4B-A964-1299913EB8FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
