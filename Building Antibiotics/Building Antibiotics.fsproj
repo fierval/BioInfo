@@ -52,8 +52,9 @@
     <None Include="DataStructs.fsx" />
     <None Include="AminoAcids.csv" />
     <None Include="CodonAminoAcid.csv" />
-    <None Include="Translation.fsx" />
+    <None Include="2a-2c.fsx" />
     <None Include="IntegerMass.csv" />
+    <None Include="2d-.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
