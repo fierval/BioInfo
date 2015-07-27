@@ -10,26 +10,19 @@ let weights = (aminoAcidOneLetterIntegerMass |> Seq.map (fun kvp -> kvp.Value)).
 
 /// Count then number of peptides of mass m
 let countNumPeptides m =
-    if m < weights.[0] then 0L
-    else
-        let allCounts : int64 [] = Array.zeroCreate (max m weights.[weights.Length - 1] + 1)
+    let allCounts : int64 [] = Array.zeroCreate (max m weights.[weights.Length - 1] + 1)
         
-        // initialize dynamic programming store
-        Array.ForEach(weights, fun w -> allCounts.[w] <- 1L)
-        let dynamicProgStep n =
-            let filtered = weights |> Array.filter (fun w -> (n - w) >= weights.[0]) 
-            if filtered.Length > 0 then
-                int64 (filtered
-                    |> Array.map (fun w -> allCounts.[n - w])
-                    |> Array.sum)
-            else
-                0L
+    // initialize dynamic programming store
+    Array.ForEach(weights, fun w -> allCounts.[w] <- 1L)
 
-        // equivalent to a simple loop, but we are using tail recursion
-        let rec fillDynArray n =
-            if n > m then allCounts.[m]
-            else
-                allCounts.[n] <- allCounts.[n] + dynamicProgStep n
-                fillDynArray (n + 1)
+    // equivalent to a simple loop, but we are using tail recursion
+    let rec fillDynArray n =
+        if n > m then allCounts.[m]
+        else
+            // dynamic_count(N) = Sum(dynamic_count((N - weights[0]), dynamic_count(N - weights[1]),.. dynamic_count(N - weights.Last())
+            let step = weights |> Array.map (fun w -> if n - w < 0 then 0L else allCounts.[n - w])|> Array.sum
 
-        fillDynArray weights.[0]               
+            allCounts.[n] <- allCounts.[n] + step
+            fillDynArray (n + 1)
+
+    fillDynArray weights.[0]
