@@ -35,6 +35,11 @@ let aminoAcidOneLetterIntegerMass =
         .Select(fun kvp -> (kvp.Key, int kvp.Value))
         .ToDictionary((fun (k, v) -> k.[0]), (fun (k, v) -> v))
 
+let aminoAcidOneLetterIntegerMassTrunc =
+    aminoAcidOneLetterIntegerMass
+        .Where(fun kvp -> kvp.Key <> 'I' && kvp.Key <> 'K')
+        .ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<char, int>) -> kvp.Value))
+
 let toCodones (rna : string) =
     let codones : string [] = Array.zeroCreate (rna.Length / 3)
     for i = 0 to codones.Length * 3 - 1 do

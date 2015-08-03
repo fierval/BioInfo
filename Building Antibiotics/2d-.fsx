@@ -6,9 +6,9 @@ open System
 open DataStructs
 
 // array of amino acid weights
-let weights = (aminoAcidOneLetterIntegerMass |> Seq.map (fun kvp -> kvp.Value)).Distinct() |> Seq.toArray
+let weights = (aminoAcidOneLetterIntegerMassTrunc |> Seq.map (fun kvp -> kvp.Value)) |> Seq.toArray
 
-/// Count then number of peptides of mass m
+/// Count the number of peptides of mass m
 let countNumPeptides m =
     let allCounts : int64 [] = Array.zeroCreate (max m weights.[weights.Length - 1] + 1)
         
@@ -19,7 +19,7 @@ let countNumPeptides m =
     let rec fillDynArray n =
         if n > m then allCounts.[m]
         else
-            // dynamic_count(N) = Sum(dynamic_count((N - weights[0]), dynamic_count(N - weights[1]),.. dynamic_count(N - weights.Last())
+            // dynamic_count(N) = Sum(dynamic_count((N - weights[0]), dynamic_count(N - weights[1]),.., dynamic_count(N - weights.Last())
             let step = weights |> Array.map (fun w -> if n - w < 0 then 0L else allCounts.[n - w])|> Array.sum
 
             allCounts.[n] <- allCounts.[n] + step
