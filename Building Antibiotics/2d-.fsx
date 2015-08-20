@@ -1,7 +1,6 @@
 ﻿#load @"..\Lesson 2\environment.fsx"
 #load "DataStructs.fsx"
 
-open System.Linq
 open System
 open DataStructs
 
