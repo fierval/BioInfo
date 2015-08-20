@@ -24,4 +24,15 @@ let countNumPeptides m =
             allCounts.[n] <- allCounts.[n] + step
             fillDynArray (n + 1)
 
-    fillDynArray weights.[0]
+    fillDynArray weights.[0], allCounts
+
+#load @"..\packages\FSharp.Charting.0.90.12\FSharp.Charting.fsx"
+open FSharp.Charting
+
+let chartNumPeptides m =
+    let _, counts = countNumPeptides m
+    let series = Array.init m (fun i -> i, if counts.[i] > 0L then counts.[i] else 1L)
+    
+    Chart.Line series.[weights.[0]..]
+    |> Chart.WithXAxis(Min=100., Max=1000.)
+    |> Chart.WithYAxis(Log=true)
