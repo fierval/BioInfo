@@ -1,4 +1,4 @@
-﻿#load @"..\Lesson 2\environment.fsx"
+﻿#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
 #load "DataStructs.fsx"
 
 open System

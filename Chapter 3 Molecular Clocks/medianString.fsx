@@ -1,4 +1,4 @@
-﻿#load @"..\Lesson 1\mostFreqKMerWithD.fsx"
+﻿#load @"..\Chapter 1 DnaA Box\mostFreqKMerWithD.fsx"
 
 open System.IO
 open System.Linq

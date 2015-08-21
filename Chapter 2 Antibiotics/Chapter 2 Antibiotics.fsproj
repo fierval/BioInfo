@@ -54,7 +54,7 @@
     <None Include="CodonAminoAcid.csv" />
     <None Include="2a-2c.fsx" />
     <None Include="IntegerMass.csv" />
-    <None Include="2d-.fsx" />
+    <None Include="2d.fsx" />
     <Content Include="packages.config" />
     <Content Include="app.config" />
     <None Include="2e-.fsx" />

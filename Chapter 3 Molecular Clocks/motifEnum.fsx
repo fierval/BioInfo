@@ -1,9 +1,9 @@
-﻿#load @"..\Lesson 1\maxMutation.fsx"
+﻿#load @"..\Chapter 1 DnaA Box\mostFreqKMerWithD.fsx"
 
 open System.IO
 open System.Linq
 open System.Collections.Generic
-open MaxMutation
+open MostFreqKMerWithD
 open FuzzyMatch
 
 /// <summary>
