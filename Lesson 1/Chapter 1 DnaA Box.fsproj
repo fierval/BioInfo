@@ -5,14 +5,15 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>b6230921-b0b1-42aa-86d6-bff24d597b87</ProjectGuid>
+    <ProjectGuid>46369b93-c1c8-4d44-9363-f952fd56ff1b</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Lesson_2</RootNamespace>
-    <AssemblyName>Lesson_2</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>Lesson_1</RootNamespace>
+    <AssemblyName>Lesson_1</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>Lesson 2</Name>
+    <Name>Chapter 1 DnaA Box</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Lesson_2.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Lesson_1.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -34,7 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Lesson_2.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Lesson_1.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -54,32 +55,28 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <None Include="motifEnum.fsx" />
-    <None Include="medianString.fsx" />
-    <None Include="mostProbableKMer.fsx" />
-    <Content Include="packages.config" />
-    <None Include="environment.fsx" />
-    <None Include="regulatoryMotifs.fsx" />
-    <None Include="randomizedMotifSearch.fsx" />
-    <None Include="gibbsSamplingMotifSearch.fsx" />
+    <None Include="patternFreq.fsx" />
+    <None Include="countKmers.fsx" />
+    <None Include="findClumps.fsx" />
+    <None Include="reverseCompl.fsx" />
+    <None Include="minSkew.fsx" />
+    <None Include="fuzzyMatch.fsx" />
+    <None Include="mostFreqKMerWithD.fsx" />
+    <None Include="stringGen.fsx" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.3.1.2.1\lib\net40\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>..\packages\MathNet.Numerics.Signed.3.6.0\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MathNet.Numerics.FSharp">
-      <HintPath>..\packages\MathNet.Numerics.FSharp.Signed.3.6.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <ProjectReference Include="..\..\..\..\GitHub\Extension-Method-Pack\NorthHorizon.Common.Xmp\NorthHorizon.Common.Xmp.csproj">
+      <Name>NorthHorizon.Common.Xmp</Name>
+      <Project>{8ed061e9-18e6-45a4-a8d9-b72cce97836f}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -57,6 +57,7 @@
     <None Include="2d-.fsx" />
     <Content Include="packages.config" />
     <Content Include="app.config" />
+    <None Include="2e-.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Charting">

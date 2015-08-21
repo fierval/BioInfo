@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lesson 1", "Lesson 1\Lesson 1.fsproj", "{46369B93-C1C8-4D44-9363-F952FD56FF1B}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Chapter 1 DnaA Box", "Lesson 1\Chapter 1 DnaA Box.fsproj", "{46369B93-C1C8-4D44-9363-F952FD56FF1B}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Lesson 2", "Lesson 2\Lesson 2.fsproj", "{B6230921-B0B1-42AA-86D6-BFF24D597B87}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Chapter 3 Molecular Clocks", "Lesson 2\Chapter 3 Molecular Clocks.fsproj", "{B6230921-B0B1-42AA-86D6-BFF24D597B87}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Chapter 2 Antibiotics", "Building Antibiotics\Chapter 2 Antibiotics.fsproj", "{9A29D57A-40FB-4F4B-A964-1299913EB8FE}"
 EndProject
