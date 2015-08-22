@@ -1,6 +1,6 @@
-﻿#load @"..\Lesson 2\environment.fsx"
+﻿#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
 #load "DataStructs.fsx"
-#load @"..\Lesson 1\reverseCompl.fsx"
+#load @"..\Chapter 1 DnaA Box\reverseCompl.fsx"
 
 open System.Linq
 open System.Collections.Generic

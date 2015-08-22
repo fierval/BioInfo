@@ -72,11 +72,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\..\..\..\GitHub\Extension-Method-Pack\NorthHorizon.Common.Xmp\NorthHorizon.Common.Xmp.csproj">
-      <Name>NorthHorizon.Common.Xmp</Name>
-      <Project>{8ed061e9-18e6-45a4-a8d9-b72cce97836f}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
