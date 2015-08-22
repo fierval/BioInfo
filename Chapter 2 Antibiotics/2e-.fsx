@@ -65,5 +65,11 @@ let cyclopeptydeSequencing (spectrum : int []) =
     
     let lst = List<List<int>>()
     Array.ForEach(weights, (fun w -> lst.Add(List<int>()); lst.Last().Add w))
-    branchAndBound lst (List<string>())
+    let outStr = branchAndBound lst (List<string>())
+    // this is due to the weird format Rosalind wants: 186-128-113 for instance
+    outStr 
+    |> Seq.map 
+        (fun s -> s.ToCharArray() 
+                    |> Array.map (fun c -> aminoAcidOneLetterIntegerMassTrunc.[c]) 
+                    |> Array.fold (fun state i -> state + "-" + i.ToString()) String.Empty)
 
