@@ -19,12 +19,17 @@ type ExtensionsForList () =
 // array of amino acid weights
 let weights = (aminoAcidOneLetterIntegerMassTrunc |> Seq.map (fun kvp -> kvp.Value)) |> Seq.toArray
 
+let intSeqToRosalindWeights (weights : int seq) = 
+    weights
+        |> Seq.fold (fun state i -> state + (if String.IsNullOrEmpty state then "" else "-") + i.ToString()) String.Empty
+
+let strToRosalindWeights (s : string) = 
+    s.ToCharArray() 
+        |> Array.map (fun c -> aminoAcidOneLetterIntegerMassTrunc.[c]) 
+        |> intSeqToRosalindWeights
+
 let toRosalind (outStr : List<string>) =
-    outStr 
-    |> Seq.map 
-        (fun s -> s.ToCharArray() 
-                    |> Array.map (fun c -> aminoAcidOneLetterIntegerMassTrunc.[c]) 
-                    |> Array.fold (fun state i -> state + (if String.IsNullOrEmpty state then "" else "-") + i.ToString()) String.Empty)
+    outStr |> Seq.map strToRosalindWeights
 
 let peptideFromLinearSpectrum (spec : int seq) =
     spec |> Seq.fold (fun state w -> state + massAminoAcid.[w].ToString()) String.Empty

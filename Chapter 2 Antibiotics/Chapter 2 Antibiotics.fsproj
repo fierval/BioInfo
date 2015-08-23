@@ -49,15 +49,15 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <Content Include="packages.config" />
     <None Include="DataStructs.fsx" />
     <None Include="AminoAcids.csv" />
     <None Include="CodonAminoAcid.csv" />
-    <None Include="2a-2c.fsx" />
     <None Include="IntegerMass.csv" />
+    <None Include="2a-2c.fsx" />
     <None Include="2d.fsx" />
-    <Content Include="packages.config" />
-    <Content Include="app.config" />
-    <None Include="2e-.fsx" />
+    <None Include="2e-Cyclospectrum.fsx" />
+    <None Include="2f-CyclospectrumLeaderboard.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Charting">
