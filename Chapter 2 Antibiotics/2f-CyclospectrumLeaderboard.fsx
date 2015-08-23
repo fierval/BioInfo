@@ -13,7 +13,7 @@ let cyclopeptydeLeaderboard (spectrum : int []) n =
     if spectrum = Unchecked.defaultof<int []> || spectrum.Length = 0 then failwith "Empty spectrum"
     let mass = spectrum.Last()
     let leaderPeptide = List<int>()
-    leaderPeptide.Add(0)
+    leaderPeptide.Add(weights.[0])
 
     // convert spectrum to the dictionary of mass -> #times occuring
     let specDict = dictOfAminos spectrum
@@ -63,7 +63,10 @@ let cyclopeptydeLeaderboard (spectrum : int []) n =
         // trim the rest of the list, so each list is a subset of the spectrum
         let toRemove = lst.Where(fun l -> l.Sum() > mass)
         let rest = lst.Except(toRemove).ToList()
-        cut rest n
+        if rest.Any() then
+            cut rest n
+        else
+            rest
         
     let rec branchAndBound (lst : List<List<int>>) =
         if lst.Count = 0 then leaderPeptide
