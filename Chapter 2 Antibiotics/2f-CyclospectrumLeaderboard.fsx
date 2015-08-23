@@ -8,9 +8,6 @@ open System.IO
 open ``2e-Cyclospectrum``
 open ``2a-2c``
 
-let orderLeaderboard (board : List<List<int>>)  =
-    board.OrderByDescending(fun e -> e.Sum())
-
 /// spectrum must be an ordered array, n - top n entries on the leaderboard with ties
 let cyclopeptydeLeaderboard (spectrum : int []) n =
     if spectrum = Unchecked.defaultof<int []> || spectrum.Length = 0 then failwith "Empty spectrum"
@@ -57,10 +54,11 @@ let cyclopeptydeLeaderboard (spectrum : int []) n =
 
         // determine the new leader
         let candidateOutput = lst |> Seq.filter (fun l -> l |> Seq.sum = mass)
-        let candidateLeader = candidateOutput |> Seq.maxBy (fun s -> score s)
-        if score candidateLeader > score leaderPeptide then
-            leaderPeptide.Clear()
-            leaderPeptide.AddRange(candidateLeader)
+        if candidateOutput.Any() then
+            let candidateLeader = candidateOutput |> Seq.maxBy (fun s -> score s)
+            if score candidateLeader > score leaderPeptide then
+                leaderPeptide.Clear()
+                leaderPeptide.AddRange(candidateLeader)
 
         // trim the rest of the list, so each list is a subset of the spectrum
         let toRemove = lst.Where(fun l -> l.Sum() > mass)
@@ -84,3 +82,5 @@ let cyclopeptydeLeaderboard (spectrum : int []) n =
     // this is due to the weird format Rosalind wants: 186-128-113 for instance
     intSeqToRosalindWeights outStr
 
+let spectrum = parseSpectrum "0 71 113 129 147 200 218 260 313 331 347 389 460"
+let n = 10
