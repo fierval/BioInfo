@@ -93,7 +93,7 @@ let cyclopeptydeSequencing (spectrum : int []) =
                    
     
 
-let parseSpectrum (s : string) = s.Trim().Split(' ') |> Array.map int
+let parseSpectrum (s : string) = s.Trim().Split(' ') |> Array.map int |> Array.sort
 
 let solve name =
     let s = File.ReadAllText(name)
