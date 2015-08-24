@@ -58,6 +58,7 @@
     <None Include="2d.fsx" />
     <None Include="2e-Cyclospectrum.fsx" />
     <None Include="2f-CyclospectrumLeaderboard.fsx" />
+    <None Include="2g.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Charting">
