@@ -29,19 +29,10 @@ let cyclopeptydeLeaderboard (spectrum : int []) n =
 
     // cut the leaderboard to have only n items with ties
     let cut (board : List<List<int>>) n =
-        let total = ref 0
         board
-            .GroupBy(fun e -> score e)
-            .OrderByDescending(fun gr -> gr.Key)
-            .TakeWhile(fun gr -> 
-                        if !total < n then
-                            total := !total + gr.Count()
-                            true
-                        else
-                            false)
-            .SelectMany(fun gr -> gr :> IEnumerable<List<int>>)
-            .ToList()
-
+            |> Seq.groupBy (fun e -> score e)
+            |> Seq.sortBy (fun (k, sq) -> -k)
+            |> Seq.fold (fun (state : List<List<int>>) (k, gr) -> (if state.Count < n then state.AddRange(gr)); state) (List<List<int>>())
 
     // create lists with an added peptide
     let expand (lst : List<List<int>>) =
