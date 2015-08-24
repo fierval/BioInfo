@@ -11,11 +11,6 @@ open System.Runtime.CompilerServices
 open DataStructs
 open ``2a-2c``
 
-[<Extension>]
-type ExtensionsForList () =
-    [<Extension>]
-    static member inline Clone (lst : List<'T>) = lst.Select(fun l -> l).ToList()
-
 // array of amino acid weights
 let weights = (aminoAcidOneLetterIntegerMassTrunc |> Seq.map (fun kvp -> kvp.Value)) |> Seq.toArray
 
@@ -57,7 +52,8 @@ let cyclopeptydeSequencing (spectrum : int []) =
         let newlst = List<List<int>>()
         for l in lst do
             for w in expandWeights do
-                let newl = l.Clone()
+                let newl = List<int>()
+                newl.AddRange(l)
                 newl.Add w
                 if isIn aminosDict newl then
                     newlst.Add newl

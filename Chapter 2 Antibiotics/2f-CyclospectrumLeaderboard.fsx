@@ -48,7 +48,8 @@ let cyclopeptydeLeaderboard (spectrum : int []) n =
         let newlst = List<List<int>>()
         for l in lst do
             for w in weights do
-                let newl = l.Clone()
+                let newl = List<int>()
+                newl.AddRange(l)
                 newl.Add w
                 newlst.Add newl
         newlst
