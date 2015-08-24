@@ -59,6 +59,22 @@ let findEncodingSubstrFile file =
     let seqs = findEncodingSubstr dna peptide |> Seq.toArray
     File.WriteAllLines(outf, seqs)
 
+let cyclopsecArr (masses : int []) = 
+    let generateSpectrum i =
+        seq {
+            for j = 0 to masses.Length - i - 1 do
+                yield (Array.sum masses.[j..j+i])
+        
+            // cyclical
+            for j = masses.Length - i to masses.Length - 1 do
+                let headpart = masses.[j..]
+                let headsum = (Array.sum headpart)
+                let tailsum = (Array.sum masses.[0..i-headpart.Length])
+                yield tailsum + headsum
+        }    
+    let subspec = [0..masses.Length - 2] |> Seq.collect generateSpectrum |> Seq.sort
+    seq {yield 0; yield! subspec; yield Array.sum masses}
+
 // generate cyclospectrum from a peptide
 let cyclospectrum (peptide : string) =
     let masses = 
