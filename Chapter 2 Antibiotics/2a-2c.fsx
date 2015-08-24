@@ -24,7 +24,7 @@ let translateKeepStop keepStop (rna : string)  =
 
     res |> Seq.fold (fun st a -> st + a) String.Empty
 
-let translate = translateKeepStop false
+let translate = translateKeepStop true
             
 let translateFile file =
     let rna = File.ReadAllText(file).Trim()
@@ -96,6 +96,11 @@ let cyclospectrum (peptide : string) =
     let subspec = [0..peptide.Length - 2] |> Seq.collect generateSpectrum |> Seq.sort
     seq {yield 0; yield! subspec; yield Array.sum masses}
 
+let solveCyc (peptide : string) =
+    let solution = cyclospectrum peptide
+    let txt = solution |> Seq.fold (fun state e -> if String.IsNullOrEmpty state then e.ToString() else state + " " + e.ToString()) String.Empty
+    File.WriteAllText(@"c:\temp\ant3.txt", txt)
+
 
 // for debugging. Generate sub-arrays of characters from a string
 let generateSpectrum (peptide : string) i =
@@ -110,4 +115,4 @@ let generateSpectrum (peptide : string) i =
             let headsum = headpart
             let tailsum = masses.[0..i-headpart.Length]
             yield String(headsum) + String(tailsum)
-    }    
+    }
