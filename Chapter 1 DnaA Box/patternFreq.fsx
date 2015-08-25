@@ -1,4 +1,6 @@
-﻿
+﻿open System.IO
+#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+
 let patPos (s : string) (pat : string) = 
     0 |> 
     Seq.unfold 
@@ -10,3 +12,8 @@ let patPos (s : string) (pat : string) =
 
 let patFreq (s : string) (pat : string) = 
     (patPos s pat).Length
+
+let solve name = 
+    let lines = File.ReadAllLines name
+    let sol = patPos lines.[1] lines.[0] |> Seq.fold (fun state e-> state + " " + e.ToString()) System.String.Empty
+    File.WriteAllText(@"c:\temp\1c.txt", sol)

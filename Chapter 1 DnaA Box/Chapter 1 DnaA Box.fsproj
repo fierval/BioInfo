@@ -63,6 +63,7 @@
     <None Include="fuzzyMatch.fsx" />
     <None Include="mostFreqKMerWithD.fsx" />
     <None Include="stringGen.fsx" />
+    <None Include="freqArray.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

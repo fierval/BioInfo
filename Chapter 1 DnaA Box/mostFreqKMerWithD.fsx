@@ -1,12 +1,14 @@
 ﻿open System.Linq
 open System.Collections.Generic
 open System
+open System.IO
 
 #load "fuzzyMatch.fsx"
 #load "reverseCompl.fsx"
 open ReverseCompl
 open FuzzyMatch
 open System.Diagnostics
+#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
 
 let changeChar (s : string) i (c : char) =
     let arr = s.ToCharArray()
@@ -72,3 +74,9 @@ let findMostFreqMutationsUtil (withReverse : bool) (s : string) k d =
 let findMostFreqMutations = findMostFreqMutationsUtil false
 let findMostFreqMutationsRev = findMostFreqMutationsUtil true
 
+let solve name rev = 
+    let lines = File.ReadAllLines name
+    let s = lines.[0]
+    let ints = lines.[1].Split() |> Array.map int    
+    let sol = findMostFreqMutationsUtil rev s ints.[0] ints.[1]
+    File.WriteAllLines(@"c:\temp\1_i.txt", sol)

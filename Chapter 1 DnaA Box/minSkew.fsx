@@ -1,9 +1,6 @@
 ﻿#r @"C:\Users\Boris\Documents\GitHub\Extension-Method-Pack\NorthHorizon.Common.Xmp\bin\Debug\NorthHorizon.Common.Xmp.dll"
+#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
 
-#r "WindowsBase"
-#load "FSharp.Charting.fsx"
-
-open FSharp.Charting
 open System
 open System.Linq
 open System.IO
@@ -34,7 +31,6 @@ let minSkew (sk : #seq<int>) =
             if skList.[i] = min' then yield i
         }    
 
-let readFile f =
-    Environment.CurrentDirectory <- @"C:\Users\Boris\Downloads"
+let solve f =
     let lines = File.ReadAllText(f).Trim() |> skew |> minSkew |> Seq.toArray |> Array.map (fun i -> i.ToString())
     File.WriteAllLines(@"c:\temp\sol4.txt", lines) 

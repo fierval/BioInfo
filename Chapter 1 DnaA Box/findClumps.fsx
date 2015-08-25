@@ -1,6 +1,6 @@
 ﻿#load "countKmers.fsx"
+#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
 
-open System
 open System.Linq
 open System.Collections.Generic
 open System.IO
@@ -23,8 +23,8 @@ let findClumps (s : string) k L t =
     kmers.ToArray()
 
 
-let findClumpsFile (f : string) =
-    let lines = File.ReadAllLines(f)
+let solve name =
+    let lines = File.ReadAllLines name
     let params' = lines.[1].Split(' ').Select(fun s -> int s).ToArray()
     let k, L, t = params'.[0], params'.[1], params'.[2]
     let out = findClumps (lines.[0]) k L t
