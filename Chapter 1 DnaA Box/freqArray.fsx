@@ -44,5 +44,5 @@ let numToPat (n : int64) k =
         |> Seq.toList
         |> List.rev
     
-    let sol = if sol.Length < k then 'A'::sol else sol
+    let sol = if sol.Length < k then alphabet.[0]::sol else sol
     String(sol |> Seq.toArray)
