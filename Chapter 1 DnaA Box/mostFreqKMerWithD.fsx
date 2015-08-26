@@ -80,3 +80,6 @@ let solve name rev =
     let ints = lines.[1].Split() |> Array.map int    
     let sol = findMostFreqMutationsUtil rev s ints.[0] ints.[1]
     File.WriteAllLines(@"c:\temp\1_i.txt", sol)
+
+
+let solveMutate s d = s:: (mutatePat s d |> Seq.toList)
