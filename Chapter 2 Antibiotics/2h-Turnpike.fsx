@@ -5,73 +5,66 @@ open System.Linq
 open System.Collections.Generic
 open ``2e-Cyclospectrum``
 
-type Decision =
-    | MaxElem
-    | MaxDistance
-    | Revert
-
 type DecisionTree =
     | Empty
-    | MaxElem of Dictionary<int, int> * int list * DecisionTree * DecisionTree * DecisionTree
-    | MaxDist of Dictionary<int, int> * int list * DecisionTree * DecisionTree * DecisionTree
+    | TreeNode of deltas : Dictionary<int, int> * solution : int list * maxElem : DecisionTree * maxDist : DecisionTree * prev : DecisionTree * visited : int
 
-let nextState (state : Decision) =
+let isNonEmptyDict (dct : Dictionary<int, int>) = dct <> Unchecked.defaultof<Dictionary<int, int>>
+
+let keySeqMax (ds : Dictionary<int, int>) = ds.Keys |> Seq.max
+
+let removeDist (deltas : Dictionary<int, int>) (distances : int seq) =
+    let nd = deltas 
+            |> Seq.fold(
+                fun (state : Dictionary<int, int>) dst -> 
+                    state.Add(dst.Key, dst.Value); state) (Dictionary<int, int>())
+    for d in distances do
+      if nd.[d] = 1 then nd.Remove(d) |> ignore
+      else
+        nd.[d] <- nd.[d] - 1
+    nd
+
+let stepOk elem res deltas =
+    let distances = (elem :: res) |> Seq.map (fun r -> abs (elem - r)) |> Seq.toList
+    if isIn deltas distances then distances else []
+
+let visit =
     function
-    | MaxElem -> MaxDistance
-    | MaxDistance -> Revert
-    | Revert -> MaxElem
+    | Empty -> Empty
+    | TreeNode(dct, sol, maxElem, maxDist, prev, visited) -> 
+        TreeNode(dct, sol, maxElem, maxDist, prev, visited + 1)
+
+let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) maxSol =
+
+    match node with 
+    | Empty -> TreeNode(deltas, res, Empty, Empty, Empty, 0)
+    | TreeNode(dct, rslt, maxElem, maxDist, prev, visited) as cur ->
+        if visited < 2 then
+            let elem = if visited = 0 then keySeqMax deltas else maxSol - keySeqMax deltas
+            let dists = stepOk elem res deltas
+            if dists.Length > 0 then
+                let newDists = removeDist deltas dists
+                if visited = 0 then
+                    insert deltas (elem::res) maxElem maxSol
+                else 
+                    insert deltas (elem::res) maxDist maxSol
+            else
+                let visitedTree = visit cur
+                insert deltas res visitedTree maxSol
+        else
+            insert deltas res prev maxSol
 
 let turnpike (dA : int seq) =
     //hashset of ditance -> # times appearing
     let deltas = dA |> Seq.filter (fun d -> d > 0) |> dictOfAminos
     deltas.Add(0, 1)
-    let keySeqMax ds = ds.Keys |> Seq.max
     let maxSol = keySeqMax deltas
     let deltaLength (dct : IDictionary<'T, 'U>) = dct.Values |> Seq.sum
     let origLength = deltaLength deltas
 
-    let isNonEmptyDict (dct : Dictionary<'T, 'U>) = dct <> Unchecked.defaultof<Dictionary<int, int>>
-    let removeDist (deltas : Dictionary<int, int>) (distanes : int seq) =
-        let nd = deltas |> Seq.fold(fun state dst -> state.Add(dst.Key, dst.Value); state) (Dictionary<int, int>())
-            for d in distances do
-              if nd.[d] = 1 then nd.Remove(d)
-              else
-                nd.[d] <- nd.[d] - 1
-            nd
+    let buildSolution (deltas : Dictionary<int, int>) (res : int list) =
+        if deltas.Count()
 
-    let stepOk elem res deltas =
-        let distances = (elem :: res) |> Seq.map (fun r -> abs (elem - r)) |> Seq.toList
-        if isIn deltas distances then distances else []
-
-    let insert (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) =
-
-        match node with 
-        | Empty -> MaxElem(deltas, res, Empty, Empty, Empty)
-        | MaxElem(dct, rslt, maxElem, maxDist, prev) as cur ->
-            if maxElem = Empty then
-                MaxElem(deltas, res, Empty, Empty, cur)
     
 
-    let withBacktrack (deltas : Dictionary<int, int>) (res : int list) (treeState : Decision) =
-
-        if deltas.Count = 0 then res
-        elif res = [-1] then
-            let treeState = nextState treeState
-            if deltaLength deltas = origLength && treeState = Revert then res // no solution
-            else           
-                withBacktrack deltas res (nextState treeState)  
-        else
-            let elem = 
-                match treeState with
-                | MaxElem -> keySeqMax deltas
-                | MaxDistance -> maxSol - (keySeqMax deltas)
-                | Revert -> -1
-
-            let nd = stepOk elem
-            if isNonEmptyDict then
-                withBacktrack nd (elem :: res) treeState
-            elif treeState = MaxElem then 
-                withBacktrack deltas res MaxDistance
-            else
-                [-1] // we need to completely revert everything
-                
+    
