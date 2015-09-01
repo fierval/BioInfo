@@ -33,7 +33,7 @@ let dictOfAminos (aminos : int seq) =
         aminos.GroupBy(fun a -> a).ToDictionary((fun gr -> gr.Key), 
             (fun (gr : IGrouping<int, int>) -> gr.Count()))
 
-let isIn (dct : Dictionary<int, int>) (lst : List<int>) =
+let isIn (dct : Dictionary<int, int>) (lst : int seq) =
     let tstDict = dictOfAminos lst
     let test = tstDict.TakeWhile(fun t -> dct.ContainsKey(t.Key) && dct.[t.Key] >= t.Value)
     test.Count() = tstDict.Count
