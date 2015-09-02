@@ -34,25 +34,29 @@ let visit =
     | TreeNode(dct, sol, maxElem, maxDist, prev, visited) -> 
         TreeNode(dct, sol, maxElem, maxDist, prev, visited + 1)
 
-let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) maxSol =
+let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) (prevNode : DecisionTree) maxSol =
 
     match node with 
-    | Empty -> TreeNode(deltas, res, Empty, Empty, Empty, 0)
+    | Empty -> TreeNode(deltas, res, Empty, Empty, prevNode, 0)
     | TreeNode(dct, rslt, maxElem, maxDist, prev, visited) as cur ->
         if visited < 2 then
             let elem = if visited = 0 then keySeqMax deltas else maxSol - keySeqMax deltas
             let dists = stepOk elem res deltas
             if dists.Length > 0 then
-                let newDists = removeDist deltas dists
+                let newDeltas = removeDist deltas dists
                 if visited = 0 then
-                    insert deltas (elem::res) maxElem maxSol
+                    insert newDeltas (elem::res) maxElem prev maxSol
                 else 
-                    insert deltas (elem::res) maxDist maxSol
+                    insert newDeltas (elem::res) maxDist prev maxSol
             else
                 let visitedTree = visit cur
-                insert deltas res visitedTree maxSol
+                insert deltas res visitedTree prev maxSol
         else
-            insert deltas res prev maxSol
+            let prevPrev =
+                match prev with
+                | Empty -> Empty
+                | TreeNode(dct, rslt, maxElem, maxDist, prev, visited) -> prev
+            insert deltas res prev prevPrev maxSol
 
 let turnpike (dA : int seq) =
     //hashset of ditance -> # times appearing
