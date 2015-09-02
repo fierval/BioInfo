@@ -45,9 +45,9 @@ let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : Decision
             if dists.Length > 0 then
                 let newDeltas = removeDist deltas dists
                 if visited = 0 then
-                    insert newDeltas (elem::res) maxElem prev maxSol
+                    insert newDeltas (elem::res) maxElem cur maxSol
                 else 
-                    insert newDeltas (elem::res) maxDist prev maxSol
+                    insert newDeltas (elem::res) maxDist cur maxSol
             else
                 let visitedTree = visit cur
                 insert deltas res visitedTree prev maxSol
