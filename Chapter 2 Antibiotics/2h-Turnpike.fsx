@@ -7,7 +7,7 @@ open ``2e-Cyclospectrum``
 
 type DecisionTree =
     | Empty
-    | TreeNode of deltas : Dictionary<int, int> * solution : int list * maxElem : DecisionTree * maxDist : DecisionTree * prev : DecisionTree 
+    | TreeNode of deltas : Dictionary<int, int> * solution : int list * visited: int * maxElem : DecisionTree * maxDist : DecisionTree * prev : DecisionTree 
 
 let keySeqMax (ds : Dictionary<int, int>) = ds.Keys |> Seq.max
 
@@ -26,30 +26,32 @@ let stepOk elem res deltas =
     let distances = (elem :: res) |> Seq.map (fun r -> abs (elem - r)) |> Seq.toList
     if isIn deltas distances then distances else []
 
-let isEmpty = 
+let visit =
     function
-    | Empty -> true
-    | _ -> false
+    | Empty -> Empty
+    | TreeNode(deltas, solution, visited, maxElem, maxDist, prev) -> 
+        TreeNode(deltas, solution, visited + 1, maxElem, maxDist, prev)
 
 let getPrev =
     function
     | Empty -> Empty
-    | TreeNode (deltas, res, maxElem, maxDist, prev) -> prev
+    | TreeNode (deltas, res, visited, maxElem, maxDist, prev) -> prev
 
 let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) (prevNode : DecisionTree) maxSol =
 
     match node with 
-    | Empty -> TreeNode(deltas, res, Empty, Empty, prevNode)
-    | TreeNode(dct, rslt, maxElem, maxDist, prev) as cur ->
-        if isEmpty maxElem || isEmpty maxDist then
-            let elem = if isEmpty maxElem then keySeqMax deltas else maxSol - keySeqMax deltas
+    | Empty -> TreeNode(deltas, res, 0, Empty, Empty, prevNode)
+    | TreeNode(dct, rslt, visited, maxElem, maxDist, prev) as cur ->
+        let curVisited = visit cur
+        if visited < 2 then
+            let elem = if visited = 0 then keySeqMax deltas else maxSol - keySeqMax deltas
             let dists = stepOk elem res deltas
             if dists.Length > 0 then
                 let newDeltas = removeDist deltas dists
-                if isEmpty maxElem then
-                    insert newDeltas (elem::res) maxElem cur maxSol
+                if visited = 0 then
+                    insert newDeltas (elem::res) maxElem curVisited maxSol
                 else 
-                    insert newDeltas (elem::res) maxDist cur maxSol
+                    insert newDeltas (elem::res) maxDist curVisited maxSol
             else
                 insert deltas res prev (getPrev prev) maxSol
         else
@@ -67,8 +69,8 @@ let turnpike (dA : int seq) =
             let prevNode = node
             match newNode with
             | Empty -> [] // no solution
-            | TreeNode(deltas, res, maxElem, maxDist, prev) ->
-                if not (isEmpty maxElem) && not (isEmpty maxDist) && isEmpty prev then [] // came all the way back, no solution
+            | TreeNode(deltas, res, visited, maxElem, maxDist, prev) ->
+                if visited >=2 && prev = Empty then [] // came all the way back, no solution
                 else
                     buildSolution deltas res newNode prevNode
 
