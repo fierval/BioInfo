@@ -65,13 +65,13 @@ let turnpike (dA : int seq) =
         if deltas.Count = 0 then res
         else
             let newNode = insert deltas res node prev maxSol
-            let prev = node
+            let prevNode = node
             match newNode with
             | Empty -> [] // no solution
             | TreeNode(deltas, res, maxElem, maxDist, prev) ->
                 if not (isEmpty maxElem) && not (isEmpty maxDist) && isEmpty prev then [] // came all the way back, no solution
                 else
-                    buildSolution deltas res newNode prev
+                    buildSolution deltas res newNode prevNode
 
     // validate that the length of the diffs set contains just the right number of entries
     let origLength = deltas.Values |> Seq.sum
