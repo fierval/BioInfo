@@ -58,7 +58,6 @@ let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : Decision
 let turnpike (dA : int seq) =
     //hashset of ditance -> # times appearing
     let deltas = dA |> Seq.filter (fun d -> d > 0) |> dictOfAminos
-    deltas.Add(0, 1)
     let maxSol = keySeqMax deltas
 
     let rec buildSolution (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) (prev : DecisionTree) =
@@ -75,9 +74,12 @@ let turnpike (dA : int seq) =
 
     // validate that the length of the diffs set contains just the right number of entries
     let origLength = deltas.Values |> Seq.sum
-    let solLength = int (floor(1. + sqrt(1. + (8. * float origLength)))/ 2.)
+    let solLength = int (ceil(1. + sqrt(1. + (8. * float origLength)))/ 2.)
     if (solLength - 1) * solLength / 2 <> origLength then []
     else
+        deltas.Add(0, 1)
         buildSolution deltas [0] Empty Empty
 
-    
+let generateDeltas (sol : int seq) =
+    sol
+    |> Seq.map (fun s -> sol |> Seq.map (fun s1 -> s1 - s)) |> Seq.collect (fun s -> s)    
