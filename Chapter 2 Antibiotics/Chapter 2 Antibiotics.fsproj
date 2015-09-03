@@ -59,6 +59,7 @@
     <None Include="2e-Cyclospectrum.fsx" />
     <None Include="2f-CyclospectrumLeaderboard.fsx" />
     <None Include="2g-2h.fsx" />
+    <None Include="2h-Turnpike.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Charting">
