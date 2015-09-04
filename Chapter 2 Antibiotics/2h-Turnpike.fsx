@@ -10,7 +10,7 @@ Environment.CurrentDirectory <- @"c:\users\boris\downloads"
 
 type DecisionTree =
     | Empty
-    | TreeNode of deltas : Dictionary<int, int> * solution : int list * visited: int * maxElem : DecisionTree * maxDist : DecisionTree * prev : DecisionTree 
+    | TreeNode of deltas : Dictionary<int, int> * solution : int list * visited: uint32 * maxElem : DecisionTree * maxDist : DecisionTree * prev : DecisionTree 
 
 let keySeqMax (ds : Dictionary<int, int>) = ds.Keys |> Seq.max
 
@@ -19,6 +19,7 @@ let removeDist (deltas : Dictionary<int, int>) (distances : int seq) =
             |> Seq.fold(
                 fun (state : Dictionary<int, int>) dst -> 
                     state.Add(dst.Key, dst.Value); state) (Dictionary<int, int>())
+
     for d in distances do
       if nd.[d] = 1 then nd.Remove(d) |> ignore
       else
@@ -35,7 +36,7 @@ let visit =
     function
     | Empty -> Empty
     | TreeNode(deltas, solution, visited, maxElem, maxDist, prev) -> 
-        TreeNode(deltas, solution, visited + 1, maxElem, maxDist, prev)
+        TreeNode(deltas, solution, visited + 1u, maxElem, maxDist, prev)
 
 let getPrev =
     function
@@ -44,31 +45,25 @@ let getPrev =
 
 let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) (prevNode : DecisionTree) maxSol =
     
-    match node with 
-    | Empty -> TreeNode(deltas, res, 0, Empty, Empty, prevNode)
-    | TreeNode(dct, rslt, visited, maxElem, maxDist, prev) as cur ->
-        let curVisited = visit cur
+    let insPrev () =
+        let res, deltas, prevPrev = getPrev prevNode
+        insert deltas res prevNode prevPrev maxSol
 
-        if visited = 0 then
-            let elem = keySeqMax deltas 
-            let dists = stepOk elem res deltas
-            if dists.Length > 0 then
-                let newDeltas = removeDist deltas dists
-                insert newDeltas (elem::res) maxElem curVisited maxSol
-            else
-                insert deltas res curVisited prev maxSol
-        elif visited = 1 then
-            let elem = maxSol - keySeqMax deltas 
-            let dists = stepOk elem res deltas
-            if dists.Length > 0 then
-                let newDeltas = removeDist deltas dists
-                insert newDeltas (elem::res) maxDist curVisited maxSol
-            else
-                let res, deltas, prevPrev = getPrev prev
-                insert deltas res prev prevPrev maxSol
+    match node with 
+    | Empty -> TreeNode(deltas, res, 0u, Empty, Empty, prevNode)
+    | TreeNode(dct, rslt, visited, maxElem, maxDist, prev) when visited < 2u ->
+        let curVisited = visit node
+        let elem = 
+            if visited = 0u then keySeqMax deltas else maxSol - keySeqMax deltas
+        let dists = stepOk elem res deltas
+        if dists.Length > 0 then
+            let newDeltas = removeDist deltas dists
+            insert newDeltas (elem::res) (if visited = 0u then maxElem else maxDist) curVisited maxSol
+        elif visited = 0u then
+            insert deltas res curVisited prev maxSol
         else
-            let res, deltas, prevPrev = getPrev prev
-            insert deltas res prev prevPrev maxSol
+            insPrev()
+    | _ -> insPrev()
 
 let turnpike (dA : int seq) =
     //hashset of ditance -> # times appearing
@@ -83,7 +78,7 @@ let turnpike (dA : int seq) =
             match newNode with
             | Empty -> [] // no solution
             | TreeNode(deltas, res, visited, maxElem, maxDist, prev) ->
-                if visited >=2 && prev = Empty then [] // came all the way back, no solution
+                if visited >=2u && prev = Empty then [] // came all the way back, no solution
                 else
                     buildSolution deltas res newNode prevNode
 
@@ -104,8 +99,8 @@ let res = [0]
 let node, prev = Empty, Empty
 
 let solve name =
-    let lines = File.ReadAllLines(name)
-    let dA = lines.[2].Split() |> Seq.map(fun s -> int s)
+    let lines = File.ReadAllText(name)
+    let dA = lines.Split() |> Seq.map(fun s -> int s)
     let sol = turnpike dA |> Seq.toArray
     let solstr = sol |> Seq.fold(fun state s -> state + " " + string s) String.Empty
     File.WriteAllText(@"c:\temp\turnpike.txt", solstr.TrimStart())
