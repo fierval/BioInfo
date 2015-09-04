@@ -4,6 +4,9 @@ open System
 open System.Linq
 open System.Collections.Generic
 open ``2e-Cyclospectrum``
+open System.IO
+
+Environment.CurrentDirectory <- @"c:\users\boris\downloads"
 
 type DecisionTree =
     | Empty
@@ -41,26 +44,25 @@ let getPrev =
 
 let rec insert (deltas : Dictionary<int, int>) (res : int list) (node : DecisionTree) (prevNode : DecisionTree) maxSol =
     
-    printfn "res: %A" res
-    printfn "deltas: %A" deltas
-    printfn "TreeNode: %A" node
-
     match node with 
     | Empty -> TreeNode(deltas, res, 0, Empty, Empty, prevNode)
     | TreeNode(dct, rslt, visited, maxElem, maxDist, prev) as cur ->
         let curVisited = visit cur
-        printfn "visited: %d" visited
 
-        if visited < 2 then
-            let elem = if visited = 0 then keySeqMax deltas else maxSol - keySeqMax deltas
-            printfn "elem: %d" elem
+        if visited = 0 then
+            let elem = keySeqMax deltas 
             let dists = stepOk elem res deltas
             if dists.Length > 0 then
                 let newDeltas = removeDist deltas dists
-                if visited = 0 then
-                    insert newDeltas (elem::res) maxElem curVisited maxSol
-                else 
-                    insert newDeltas (elem::res) maxDist curVisited maxSol
+                insert newDeltas (elem::res) maxElem curVisited maxSol
+            else
+                insert deltas res curVisited prev maxSol
+        elif visited = 1 then
+            let elem = maxSol - keySeqMax deltas 
+            let dists = stepOk elem res deltas
+            if dists.Length > 0 then
+                let newDeltas = removeDist deltas dists
+                insert newDeltas (elem::res) maxDist curVisited maxSol
             else
                 let res, deltas, prevPrev = getPrev prev
                 insert deltas res prev prevPrev maxSol
@@ -97,6 +99,13 @@ let generateDeltas (sol : int seq) =
     sol
     |> Seq.map (fun s -> sol |> Seq.map (fun s1 -> s1 - s)) |> Seq.collect (fun s -> s) |> Seq.toList |> List.sort
     
-let dA = generateDeltas [0; 3; 5; 6; 8; 10; 12; 15; 27]
+let dA = generateDeltas [0; 2; 4; 7; 10]
 let res = [0]
 let node, prev = Empty, Empty
+
+let solve name =
+    let lines = File.ReadAllLines(name)
+    let dA = lines.[2].Split() |> Seq.map(fun s -> int s)
+    let sol = turnpike dA |> Seq.toArray
+    let solstr = sol |> Seq.fold(fun state s -> state + " " + string s) String.Empty
+    File.WriteAllText(@"c:\temp\turnpike.txt", solstr.TrimStart())
