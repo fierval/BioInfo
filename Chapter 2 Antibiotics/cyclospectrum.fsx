@@ -1,11 +1,24 @@
-﻿#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+﻿#r @"..\packages\Alea.CUDA.2.1.2.3274\lib\net40\Alea.CUDA.dll" 
+#r "System.Configuration.dll"
+#r @"..\packages\NUnit.2.6.4\lib\nunit.framework.dll"
+#r @"..\packages\FsUnit.1.3.1.0\lib\FsUnit.NUnit.dll"
+#load @"..\packages\FSharp.Charting.0.90.12\FSharp.Charting.fsx"
+
 #load "DataStructs.fsx"
 
 open System.Linq
-open System.Collections.Generic
 open System
 open System.IO
 open DataStructs
+open FsUnit
+
+open Alea.CUDA
+open Alea.CUDA.Utilities
+open System.Diagnostics
+open FSharp.Charting
+
+Alea.CUDA.Settings.Instance.Resource.AssemblyPath <- Path.Combine(__SOURCE_DIRECTORY__, @"..\packages\Alea.Cuda.2.1.2.3274\private")
+Alea.CUDA.Settings.Instance.Resource.Path <- Path.Combine(__SOURCE_DIRECTORY__, @"..\release")
 
 // array of amino acid weights
 let weights = (aminoAcidOneLetterIntegerMassTrunc |> Seq.map (fun kvp -> kvp.Value)) |> Seq.toArray
@@ -29,24 +42,96 @@ let cyclospec (peptide : int seq) =
                             parsum <- parsum + pepArr.[if ind >= len then ind - len else ind]
                         parsum    
                         )
-    }) |> Seq.sort 
-        
+    }) |> Seq.sort |> Seq.toArray
 
-let cyclospectrum (peptide : string) =
-    let masses = 
-        peptide.ToCharArray() 
-        |> Array.map (fun c -> aminoAcidOneLetterIntegerMass.[c])
-
-    cyclospec masses    
-
-let solveCyc (peptide : string) =
-    let solution = cyclospectrum peptide
-    let txt = solution |> Seq.fold (fun state e -> if String.IsNullOrEmpty state then e.ToString() else state + " " + e.ToString()) String.Empty
-    File.WriteAllText(@"c:\temp\ant3.txt", txt)
-
+// generates a peptide for comparison
 let generatePeptide (len : int) =
     let rnd = Random(int DateTime.UtcNow.Ticks)
 
     seq {
         for i in [1..len] -> weights.[rnd.Next(weights.Length)]
     } |> Seq.sort |> Seq.toArray
+
+// GPU worker
+let worker = Worker.Default
+
+[<Kernel; ReflectedDefinition>]
+let cyclospecKernel (arr : deviceptr<int>) (len : int) (out : deviceptr<int>) =
+    let ind = blockIdx.x * blockDim.x + threadIdx.x
+    let lenElem = blockIdx.y * blockDim.y + threadIdx.y
+
+    if ind < len && lenElem < len - 1 then
+        let mutable parsum = 0
+        for i = 0 to lenElem do
+            let idx = ind + i
+            parsum <- parsum + arr.[if idx >= len then idx - len else idx]
+        out.[lenElem * len + ind] <- parsum
+
+let cyclospecGpu (peptide : int []) =
+    let blockSize = dim3(16, 16, 1)
+    let gridSize = dim3(divup peptide.Length blockSize.x, divup peptide.Length blockSize.y)
+    let lp = LaunchParam(gridSize, blockSize)
+
+    use dPeptide = worker.Malloc(peptide)
+    use dOutput : DeviceMemory<int> = worker.Malloc(peptide.Length * (peptide.Length - 1))
+    worker.Launch <@cyclospecKernel @> lp dPeptide.Ptr peptide.Length dOutput.Ptr
+    let output = dOutput.Gather()
+
+    seq{yield 0; yield! output; yield peptide |> Seq.sum} |> Seq.toArray |> Array.sort
+
+
+let test len =
+    let peptide = generatePeptide len
+    let cpu = cyclospec peptide
+    let gpu = cyclospecGpu peptide
+
+    should equal cpu gpu
+
+// experiment: run from 10 ** low to 10 ** high array length
+let experiment low high =
+    if low >= high || low < 0 then failwith "must be: low < high, both non-negative"
+
+    // salt it
+    let len = 100
+    test len
+
+    let sw = Stopwatch()
+    let cpuTimes = Array.zeroCreate (high - low + 1)
+    let gpuTimes = Array.zeroCreate (high - low + 1)
+
+
+    for i = low to high do
+        let range = 500 * i
+        let arr = generatePeptide range
+
+        // Run on CPU
+        sw.Restart()
+        printfn "Legnth: %d" range
+        printfn "-----------"
+        let h1 = cyclospec arr
+        sw.Stop()
+
+        let idx = i - low
+
+        cpuTimes.[idx] <- range, sw.Elapsed.TotalSeconds
+        printfn "Computed on CPU: %0.5f sec" (snd cpuTimes.[idx])
+
+        //Run on GPU
+        sw.Restart()
+        let h2 = cyclospecGpu arr
+        sw.Stop()
+        gpuTimes.[idx] <- range, float sw.Elapsed.TotalSeconds
+        printfn "Computed on GPU: %0.5f sec" (snd gpuTimes.[idx])
+        printfn ""
+
+        // make sure we are ok
+        should equal h1 h2
+
+    Chart.Combine(
+        [Chart.Line(cpuTimes, Name="CPU")
+         Chart.Line(gpuTimes, Name="GPU")
+        ] 
+    )
+        .WithYAxis(Log=false, Title = "sec")
+        .WithXAxis(Min=500. * float low, Title = "length")
+        .WithLegend(InsideArea=true) 
