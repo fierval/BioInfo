@@ -87,8 +87,16 @@ let cyclospecKernel (arr : deviceptr<int>) (len : int) (out : deviceptr<int>) =
             parsum <- parsum + arr.[if idx >= len then idx - len else idx]
         out.[lenElem * len + ind] <- parsum
 
+[<Kernel; ReflectedDefinition>]
+let cyclospecOptKernel (arr : deviceptr<int>) (len : int) (out : deviceptr<int>) (lenElem : int)=
+    let ind = blockIdx.x * blockDim.x + threadIdx.x
+
+    if ind < len then
+        let idx = ind + lenElem
+        out.[lenElem * len + ind] <- (if lenElem = 0 then 0 else out.[(lenElem - 1) * len + ind]) + arr.[if idx >= len then idx - len else idx]
+
 let cyclospecGpu (peptide : int []) =
-    let blockSize = dim3(16, 16, 1)
+    let blockSize = dim3(16, 16)
     let gridSize = dim3(divup peptide.Length blockSize.x, divup peptide.Length blockSize.y)
     let lp = LaunchParam(gridSize, blockSize)
 
@@ -99,15 +107,30 @@ let cyclospecGpu (peptide : int []) =
 
     seq{yield 0; yield! output; yield peptide |> Seq.sum} |> Seq.toArray |> Array.sort
 
+let cyclospecOptGpu (peptide : int []) =
+    let blockSize = 256
+    let gridSize = divup peptide.Length blockSize
+    let lp = LaunchParam(gridSize, blockSize)
+
+    use dPeptide = worker.Malloc(peptide)
+    use dOutput : DeviceMemory<int> = worker.Malloc(peptide.Length * (peptide.Length - 1))
+    for i = 0 to peptide.Length - 2 do
+        worker.Launch <@cyclospecOptKernel @> lp dPeptide.Ptr peptide.Length dOutput.Ptr i
+    let output = dOutput.Gather()
+
+    seq{yield 0; yield! output; yield peptide |> Seq.sum} |> Seq.toArray |> Array.sort
+
 
 let test len =
     let peptide = generatePeptide len
     let cpu = cyclospec peptide
     let cpuOpt = cyclospecOpt peptide
     let gpu = cyclospecGpu peptide
+    let gpuOpt = cyclospecOptGpu peptide
 
     should equal cpu gpu
     should equal cpu cpuOpt 
+    should equal cpu gpuOpt
 
 // experiment: run from 10 ** low to 10 ** high array length
 let experiment low high =
@@ -121,6 +144,7 @@ let experiment low high =
     let cpuTimes = Array.zeroCreate (high - low + 1)
     let cpuOptTimes = Array.zeroCreate (high - low + 1)
     let gpuTimes = Array.zeroCreate (high - low + 1)
+    let gpuOptTimes = Array.zeroCreate (high - low + 1)
 
     for i = low to high do
         let range = 500 * i
@@ -151,12 +175,20 @@ let experiment low high =
         sw.Stop()
         gpuTimes.[idx] <- range, float sw.Elapsed.TotalSeconds
         printfn "Computed on GPU: %0.5f sec" (snd gpuTimes.[idx])
+
+        //Run on GPU (optimized)
+        sw.Restart()
+        let h3 = cyclospecOptGpu arr
+        sw.Stop()
+        gpuOptTimes.[idx] <- range, float sw.Elapsed.TotalSeconds
+        printfn "Computed on GPU (optimized): %0.5f sec" (snd gpuOptTimes.[idx])
         printfn ""
 
     Chart.Combine(
         [Chart.Line(cpuTimes, Name="CPU")
          Chart.Line(cpuOptTimes, Name="CPU (optimized)")
          Chart.Line(gpuTimes, Name="GPU")
+         Chart.Line(gpuOptTimes, Name="GPU (optimized)")
         ] 
     )
         .WithYAxis(Log=true, Title = "sec")
