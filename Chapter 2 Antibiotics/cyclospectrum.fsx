@@ -31,7 +31,7 @@ let cyclospec (peptide : int seq) =
 
     let mutable parsum = 0
 
-    (seq {
+    seq {
         yield 0
         yield pepArr |> Array.sum
         for i = 0 to len - 2 do
@@ -44,7 +44,7 @@ let cyclospec (peptide : int seq) =
                             parsum <- parsum + pepArr.[if ind >= len then ind - len else ind]
                         parsum    
                         )
-    }) |> Seq.sort |> Seq.toArray
+    } |> Seq.sort |> Seq.toArray
 
 // O(n^2) solution
 let cyclospecOpt (peptide : int seq) =
