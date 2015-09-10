@@ -1,11 +1,11 @@
 ﻿open System
 open System.Linq
-open System.Collections.Generic
 open System.IO
 
 #load "2f-CyclospectrumLeaderboard.fsx"
 open ``2e-Cyclospectrum``
 open ``2f-CyclospectrumLeaderboard``
+#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
 
 let convGroups (spectrum : int[]) = 
     spectrum
