@@ -99,8 +99,8 @@ let res = [0]
 let node, prev = Empty, Empty
 
 let solve name =
-    let lines = File.ReadAllText(name)
-    let dA = lines.Split() |> Seq.map(fun s -> int s)
+    let lines = File.ReadAllText(name).Trim()
+    let dA = lines.Split() |> Array.map(fun s -> int s)
     let sol = turnpike dA |> Seq.toArray
     let solstr = sol |> Seq.fold(fun state s -> state + " " + string s) String.Empty
     File.WriteAllText(@"c:\temp\turnpike.txt", solstr.TrimStart())
