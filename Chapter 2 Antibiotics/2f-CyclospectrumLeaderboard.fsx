@@ -70,7 +70,6 @@ let cyclopeptydeAlphabet (alphabet : int []) (spectrum : int []) n =
         if lst.Count = 0 then leaderPeptide
         else
             let lst = expand lst
-            printfn "%d" lst.Count
             let rest = bound lst
             branchAndBound rest
     
