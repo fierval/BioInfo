@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="3a-3b.fsx" />
+    <None Include="3c-OverlapGraph.fsx" />
+    <None Include="3d-debruin.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
