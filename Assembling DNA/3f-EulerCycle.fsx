@@ -19,9 +19,9 @@ let parse (s : string []) : int Euler =
     undec.ToDictionary(fst, snd)
 
 let findCycles (graph : 'a Euler) =
-    let rec findCyclesRec (curCycle : 'a Cycle)  =
+    let rec findCyclesRec (curCycle : 'a Cycle)  (unusedNodes : 'a HashSet) =
 
-        let rec buildCycle (cycle : 'a Cycle)  =
+        let rec buildCycle (cycle : 'a Cycle) =
         
             // get new node for the cycle:
             // remove it from the graph
@@ -33,7 +33,11 @@ let findCycles (graph : 'a Euler) =
                     graph.[node].RemoveAt(0)
                     // we don't care about adding existing items to a hash set. It checks for them
                     if graph.[node].Count = 0 
-                        then graph.Remove node |> ignore
+                        then 
+                            graph.Remove node |> ignore
+                            unusedNodes.Remove node |> ignore
+                        else 
+                            unusedNodes.Add node |> ignore
                     Some nextNode
                 else
                     None
@@ -52,18 +56,19 @@ let findCycles (graph : 'a Euler) =
             curCycle.RemoveRange(0, start)
             curCycle.Add curNode
 
-        let curNode = curCycle.Last()
+        let curNode = if unusedNodes.Count = 0 then  curCycle.Last() else unusedNodes.First()
         if curCycle.Count > 0 then 
             // walk the cycle starting from the new edge
             rearrangeCycleIndex curNode
-            // all unused edges were used
+            unusedNodes.Remove curNode |> ignore
 
         let cycle = buildCycle curCycle
-        if graph.Count = 0 then cycle else findCyclesRec cycle
+        if graph.Count = 0 then cycle else findCyclesRec cycle unusedNodes
 
     let curCycle = List<'a>()
     curCycle.Add (graph.First().Key)
-    findCyclesRec curCycle
+    let unusedNodes = HashSet<'a>()
+    findCyclesRec curCycle unusedNodes
 
 let name = "euler1.txt"
 
@@ -72,6 +77,8 @@ let solve name =
     let graph = parse strs
 
     let curCycle = List<int>()
+    curCycle.Add (graph.First().Key)
     let cycle = curCycle
+    let unusedNodes = HashSet<int>()
 
     findCycles graph
