@@ -36,7 +36,7 @@ let solveStr name =
     File.WriteAllLines(@"c:\temp\debruin.txt", sol)
 
 let debruijn (kmers : string []) =
-    kmers.ToLookup((fun k -> prefix k),(fun k -> suffix k))
+    kmers.ToLookup(prefix, suffix)
 
 let kmers = [|"GAGG"; "CAGG"; "GGGG"; "GGGA"; "CAGG"; "AGGG"; "GGAG"|]
 

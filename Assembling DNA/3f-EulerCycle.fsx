@@ -18,7 +18,7 @@ let parse (s : string []) : int Euler =
 
     undec.ToDictionary(fst, snd)
 
-let findCycles (graph : 'a Euler) =
+let findCycle (graph : 'a Euler) =
     let rec findCyclesRec (curCycle : 'a Cycle)  (unusedNodes : 'a HashSet) =
 
         let rec buildCycle (cycle : 'a Cycle) =
@@ -98,5 +98,5 @@ let verifyAnswer (graph : 'a Euler) (cycle : 'a List) =
     graph
 
 let solve name =
-    let sol = File.ReadAllLines name |> parse |> findCycles |> decorateCycle
+    let sol = File.ReadAllLines name |> parse |> findCycle |> decorateCycle
     File.WriteAllText(@"c:\temp\euler_cycle.txt", sol)
