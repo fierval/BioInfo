@@ -20,7 +20,6 @@ let findUnbalanced (graph : 'a Euler) =
         graph |> Seq.collect (fun kvp -> kvp.Value) |> Seq.groupBy id |> Seq.map (fun (key, vals) -> key, vals.Count())
 
     let out = groupedOut.Except groupedIn |> Seq.toArray |> Array.sortBy fst
-
     let in' = groupedIn.Except groupedOut |> Seq.toArray |> Array.sortBy fst
 
     if in'.Length > 2 || out.Length > 2 then failwith "Too unbalanced!"

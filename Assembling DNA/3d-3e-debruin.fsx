@@ -17,12 +17,12 @@ let debruijnString (s : string) n =
                 yield (kmers.[i], kmers.[i + 1])
         }
 
-    pathGraph.ToLookup((fun (p1, p2) -> p1),((fun (p1, p2) -> p2)))
-
-let decorate (graph : ILookup<string, string>) =
-    graph
+    pathGraph.ToLookup(fst, snd)
         .OrderBy(fun kvp -> kvp.Key)
         .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<string, string>) -> gr.OrderBy(fun e -> e).ToList()))
+
+let decorate (graph : Dictionary<string, List<string>>) =
+    graph
         .Select(fun kvp -> kvp.Key + " -> " + kvp.Value.Aggregate(fun st s -> st + "," + s)).ToArray()
 
 let s = "AAGATTCTCTAC"
@@ -37,6 +37,8 @@ let solveStr name =
 
 let debruijn (kmers : string []) =
     kmers.ToLookup(prefix, suffix)
+        .OrderBy(fun kvp -> kvp.Key)
+        .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<string, string>) -> gr.OrderBy(fun e -> e).ToList()))
 
 let kmers = [|"GAGG"; "CAGG"; "GGGG"; "GGGA"; "CAGG"; "AGGG"; "GGAG"|]
 
