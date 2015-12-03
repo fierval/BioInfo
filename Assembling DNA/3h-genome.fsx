@@ -13,5 +13,5 @@ let toString (cycle : string seq) =
     cycle.Skip(1) |> Seq.fold (fun acc e -> acc + e.Last().ToString()) (cycle.First())
 
 let solve name =
-    let sol = (File.ReadAllLines name).Skip(1).ToArray() |> debruijn |> findPath |> toString
+    let sol = (File.ReadAllLines name).[1..] |> debruijn |> findPath |> toString
     File.WriteAllText(@"c:\temp\genome.txt", sol)
