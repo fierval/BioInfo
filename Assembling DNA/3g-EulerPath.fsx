@@ -36,7 +36,9 @@ let findUnbalanced (graph : 'a Euler) =
         else fst out.[1], fst out.[0]
     else pickFromUneven out in'
 
-let findPath (graph : 'a Euler) (edge : 'a * 'a) =
+let findPath (graph : 'a Euler) =
+    let edge = findUnbalanced graph
+    
     let out, in' = edge
     if not (graph.ContainsKey out) then graph.Add(out, List<'a>())
     graph.[out].Add(in')
@@ -66,6 +68,5 @@ let solvePath name =
     let strs = File.ReadAllLines name
     let graph = parse strs
 
-    let edge = findUnbalanced graph
-    let sol = findPath graph edge |> decorateCycle
+    let sol = findPath graph |> decorateCycle
     File.WriteAllText(@"c:\temp\euler_path.txt", sol)

@@ -51,7 +51,8 @@
     <None Include="3c-OverlapGraph.fsx" />
     <None Include="3d-3e-debruin.fsx" />
     <None Include="3f-EulerCycle.fsx" />
-    <None Include="3g-EulearPath.fsx" />
+    <None Include="3g-EulerPath.fsx" />
+    <None Include="3h-Genome.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

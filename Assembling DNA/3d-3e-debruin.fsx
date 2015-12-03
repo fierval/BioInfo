@@ -18,7 +18,6 @@ let debruijnString (s : string) n =
         }
 
     pathGraph.ToLookup(fst, snd)
-        .OrderBy(fun kvp -> kvp.Key)
         .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<string, string>) -> gr.OrderBy(fun e -> e).ToList()))
 
 let decorate (graph : Dictionary<string, List<string>>) =
@@ -37,7 +36,6 @@ let solveStr name =
 
 let debruijn (kmers : string []) =
     kmers.ToLookup(prefix, suffix)
-        .OrderBy(fun kvp -> kvp.Key)
         .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<string, string>) -> gr.OrderBy(fun e -> e).ToList()))
 
 let kmers = [|"GAGG"; "CAGG"; "GGGG"; "GGGA"; "CAGG"; "AGGG"; "GGAG"|]
