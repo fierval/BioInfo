@@ -34,7 +34,7 @@ let solveStr name =
     let sol = debruijnString s n |> decorate
     File.WriteAllLines(@"c:\temp\debruin.txt", sol)
 
-let debruijn (kmers : string []) =
+let debruijn (kmers : string seq) =
     kmers.ToLookup(prefix, suffix)
         .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<string, string>) -> gr.OrderBy(fun e -> e).ToList()))
 
