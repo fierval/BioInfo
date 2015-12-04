@@ -23,7 +23,7 @@ let findKMersBrute (dna : string []) k d =
                 // not run the mutations
                 let countsMut = 
                     mutations
-                        .ToDictionary((fun x -> x),(fun x -> countD s x d))
+                        .ToDictionary(id,(fun x -> countD s x d))
                         .Where(fun kvp -> kvp.Value > 0)
                         .Select(fun kvp -> kvp.Key)
 

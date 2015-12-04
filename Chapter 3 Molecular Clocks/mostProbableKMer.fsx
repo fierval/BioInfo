@@ -18,7 +18,7 @@ let findMostProbable (s : string) (profile : float [,]) =
                 kmer, kmer.ToCharArray() 
                     |> Array.map (fun c -> alphabet.[c])
                     |> Array.mapi (fun i ind -> profile.[ind, i])
-                    |> Array.fold (fun state p -> state * p) 1.)
+                    |> Array.fold (*) 1.)
 
     let mostProbable = probs.OrderByDescending(fun (kmer, prob) -> prob).GroupBy(fun (kmer, prob) -> prob).First().Select(fun (kmer, prob) -> kmer).ToArray()
     if mostProbable.Length > 1 then

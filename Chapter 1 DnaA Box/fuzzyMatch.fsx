@@ -61,3 +61,7 @@ let countDFile path =
     let lines = File.ReadAllLines path
     countD lines.[0] lines.[1] (int lines.[2]) 
     
+let name = "rosalind_ba1g.txt"
+let ham name =
+    let strs = File.ReadAllLines(name).Select(fun s -> s.Trim()).ToArray()
+    hammingDist strs.[0] strs.[1]
