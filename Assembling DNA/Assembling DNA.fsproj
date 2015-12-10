@@ -53,6 +53,7 @@
     <None Include="3f-EulerCycle.fsx" />
     <None Include="3g-EulerPath.fsx" />
     <None Include="3h-3i-Genome.fsx" />
+    <None Include="3j-ReadPairs.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
