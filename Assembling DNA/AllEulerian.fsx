@@ -29,8 +29,9 @@ let reverseAdj (graph : string Euler) =
             .GroupBy(fun (o, i) -> i)
             .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<string, string * string>) -> gr.Select(fun (o, i) -> i).ToList()))
 
-let cloneDict (dct : Dictionary<'a, 'b>) =
-    dct.Select(id).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<'a, 'b>) -> kvp.Value))
+(*deep copy a graph*)
+let cloneDict (dct : string Euler) =
+    dct.Select(fun kvp -> new KeyValuePair<string, List<string>>(kvp.Key, kvp.Value.Select(id).ToList())).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<string, List<string>>) -> kvp.Value))
 
 let allEulerian (graph : string Euler) =
     let allCycles = List<string Euler * string Euler>()
