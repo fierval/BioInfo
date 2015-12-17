@@ -13,6 +13,15 @@ open ``3d-3e-debruin``
 open ``3h-3i-Genome``
 open System.IO
 
+let parseStr (s : string []) : string Euler =
+    let undec = 
+        s 
+        |> Array.map(fun e -> 
+                        let arr = e.Split([|"->"|], 2, StringSplitOptions.RemoveEmptyEntries)
+                        arr.[0].Trim(), arr.[1].Split(',').Select(fun el -> el.Trim()).ToList())
+
+    undec.ToDictionary(fst, snd)
+
 (* An "reverse" adjacency list of in -> out *)
 let reverseAdj (graph : string Euler) =
         graph
@@ -63,3 +72,4 @@ let allEulerian (graph : string Euler) =
                                 ).AsEnumerable()).Where(fun (gr, rev) -> rev <> Unchecked.defaultof<string Euler>)
             allCycles.AddRange newGraphs
 
+let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
