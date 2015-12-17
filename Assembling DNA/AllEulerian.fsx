@@ -15,10 +15,7 @@ open System.IO
 
 (* An "reverse" adjacency list of in -> out *)
 let reverseAdj (graph : string Euler) =
-    let gr = graph.Where(fun v -> v.Value.Count > 1)
-    if gr.FirstOrDefault() = Unchecked.defaultof<KeyValuePair<string, List<string>>> then Unchecked.defaultof<string Euler>
-    else
-        gr
+        graph
             .SelectMany(fun kvp -> seq {for v in kvp.Value -> (kvp.Key, v)})
             .GroupBy(fun (o, i) -> i)
             .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<string, string * string>) -> gr.Select(fun (o, i) -> i).ToList()))
@@ -32,13 +29,15 @@ let allEulerian (graph : string Euler) =
 
     allCycles.Add(graph, revGraph)
 
-    let isDone () = snd (allCycles.First()) = Unchecked.defaultof<string Euler>
-    let isConnected (gr : string Euler) = gr.FirstOrDefault(fun gr -> gr.Value.Count = 0) = Unchecked.defaultof<KeyValuePair<string, List<string>>>
+    let isDone () =
+        let curGraph, revCurGraph = allCycles.First()
+        curGraph.LongCount(fun kvp -> kvp.Value.Count > 1) = 0L
 
     while not (isDone ()) do
         let curGraph, revCurGraph = allCycles.First()
+        let outVertices = revCurGraph.Where(fun kvp -> kvp.Value.Count > 1).Select(fun kvp -> kvp.Key)
         allCycles.RemoveAt(0)
-        for v in revCurGraph.Keys do //for each in-edge (u, v) into v
+        for v in outVertices do //for each in-edge (u, v) into v
             let u's = revCurGraph.[v] // all edges u coming into v
             let w's = curGraph.[v] // for each out edge v, w 
             let newGraphs = 
@@ -49,13 +48,18 @@ let allEulerian (graph : string Euler) =
                                 w's.Select(fun w j -> 
                                             let x = v + "_" + i.ToString() + "_" + j.ToString()
                                             let newVert = List<string>()
-                                            newVert.Add(x)
+                                            newVert.Add(w)
                                             newGraph.Add(x, newVert)
                                             newGraph.[u].Add(x)
                                             newGraph.[v].RemoveAt(newGraph.[v].IndexOf w)
-                                            if newRevGraph.ContainsKey w then
+                                            newGraph.[u].RemoveAt(newGraph.[u].IndexOf v)
+                                            if newGraph.[u].Count = 0 || newGraph.[v].Count = 0 then Unchecked.defaultof<string Euler>, Unchecked.defaultof<string Euler>
+
+                                            else
                                                 newRevGraph.[w].RemoveAt(newRevGraph.[w].IndexOf v)
-                                            newGraph, newRevGraph               
-                                ).AsEnumerable()).Where(fun (gr, rev) -> isConnected gr)
+                                                newRevGraph.[v].RemoveAt(newRevGraph.[v].IndexOf u)
+                                                if newRevGraph.[v].Count = 0 then newRevGraph.Remove(v) |> ignore
+                                                newGraph, newRevGraph               
+                                ).AsEnumerable()).Where(fun (gr, rev) -> rev <> Unchecked.defaultof<string Euler>)
             allCycles.AddRange newGraphs
 
