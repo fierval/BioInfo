@@ -13,8 +13,7 @@ let findNextPos i j (positions : List<int*int>) (visited : HashSet<int*int>) =
     res
 
 let walkPath (matr : char [,]) (str : string) =
-    let len1 = Array2D.length1 matr
-    let len2 = Array2D.length2 matr
+    let str = str.ToUpper()
     let path = List<int*int>()
     let startMap = Dictionary<char, List<int * int>>()
     let visited = HashSet<int*int>()
@@ -66,7 +65,7 @@ let walkPath (matr : char [,]) (str : string) =
                     k <- k - 1
 
 let parseStrs (strs : string seq) =
-    let strs = Seq.toList strs
+    let strs = strs |> Seq.map (fun e -> e.ToUpper()) |> Seq.toList
     Array2D.init (strs.First().Length) (strs.Count()) (fun i j -> strs.[i].[j])
 
 let strs = ["ABCE"; "SFCS"; "ADEE"]
