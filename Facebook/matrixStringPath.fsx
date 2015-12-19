@@ -60,6 +60,7 @@ let walkPath (matr : char [,]) (str : string) =
                             visited.Remove(i, j) |> ignore
                             curVisited.Clear()
                     k <- k - 1
+    path
 
 let parseStrs (strs : string seq) =
     let strs = strs |> Seq.map (fun e -> e.ToUpper()) |> Seq.toList
