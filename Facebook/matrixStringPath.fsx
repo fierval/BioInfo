@@ -3,13 +3,10 @@ open System.Collections.Generic
 open System.Linq
 
 let findNextPos i j (positions : List<int*int>) (visited : HashSet<int*int>) =
-    let mutable stop = false
-    let mutable k = 0
     let res = List<int>()
-    while k < positions.Count do
+    for k = 0 to positions.Count - 1 do
         let x, y = positions.[k]
         if (x = i - 1 && y = j) || (x = i + 1 && y = j) || (x = i && y = j + 1) || (x = i && y = j - 1) && not (visited.Contains((x, y))) then res.Add(k)
-        k <- k + 1
     res
 
 let walkPath (matr : char [,]) (str : string) =
