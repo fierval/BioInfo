@@ -59,6 +59,8 @@ let walkPath (matr : char [,]) (str : string) =
                         for i, j in curVisited do
                             visited.Remove(i, j) |> ignore
                             curVisited.Clear()
+                        curVisited.Add(path.[path.Count - 1])
+                        path.RemoveAt(path.Count - 1)
                     k <- k - 1
     path
 

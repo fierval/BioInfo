@@ -47,6 +47,7 @@
     <None Include="numbersOfSum.fsx" />
     <None Include="removeArray.fsx" />
     <None Include="matrixStringPath.fsx" />
+    <None Include="nStacks.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
