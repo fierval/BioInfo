@@ -14,7 +14,6 @@ let walkPath (matr : char [,]) (str : string) =
     let path = List<int*int>()
     let startMap = Dictionary<char, List<int * int>>()
     let visited = HashSet<int*int>()
-    let depths = Stack<int>()
     
     matr 
     |> Array2D.iteri 
@@ -22,50 +21,55 @@ let walkPath (matr : char [,]) (str : string) =
             if not (startMap.ContainsKey s) then startMap.Add(s, List<int*int>()) 
             startMap.[s].Add(i, j))
 
-    let toVisit = Stack<int*int>()
+    let toVisit = Stack<List<int*int>>()
     let chars = str.ToCharArray()
     if chars.Count(fun c -> not (startMap.ContainsKey c)) > 0 then failwith "no path"
 
     let mutable k = 0
-    let curVisited = List<int*int>()
+    let mutable var = 0
 
     while k < chars.Length do
         let positions = startMap.[chars.[k]]
         if k = 0 then
-            positions |> Seq.iter (fun pos -> toVisit.Push pos)
-            depths.Push(toVisit.Count)
+            if positions.Count = 0 then failwith "no path"
+            toVisit.Push(positions.Select(id).ToList())
             k <- k + 1
-                    
-        //get next position from the stack
-        let i, j = toVisit.Pop()
-        path.Add(i, j)
-        if k < chars.Length - 1 then
-            let nextPos = findNextPos i j positions visited
+        else            
+            //get next position from the stack
+            let variations = toVisit.Peek()
+            
+            let i, j = variations.[var]
+
             visited.Add(i, j) |> ignore
-            curVisited.Add(i,j)
+            let nextPos = findNextPos i j positions visited
 
             if nextPos.Count > 0 then
-                nextPos |> Seq.iter (fun pos -> toVisit.Push positions.[pos])
-                depths.Push(nextPos.Count)
+                path.Add(i, j)
+                toVisit.Push(nextPos.Select(fun n -> positions.[n]).ToList())
                 k <- k + 1
+                if k = chars.Length then
+                    path.Add(positions.[nextPos.[0]])
+                else
+                    var <- 0
             else
                 if toVisit.Count = 0 then failwith "path does not exist"
                 else
-                    path.RemoveAt(path.Count - 1)
-                    depths.Push(depths.Pop() - 1)
-                    if depths.Peek() = 0
+                    var <- var + 1
+                    if var = variations.Count - 1
                     then
-                        depths.Pop() |> ignore
-                        for i, j in curVisited do
+                        for i, j in variations do
                             visited.Remove(i, j) |> ignore
-                            curVisited.Clear()
-                        curVisited.Add(path.[path.Count - 1])
+                        toVisit.Pop() |> ignore
                         path.RemoveAt(path.Count - 1)
                     k <- k - 1
-    path
+    path.ToArray()
 
 let parseStrs (strs : string seq) =
     let strs = strs |> Seq.map (fun e -> e.ToUpper()) |> Seq.toList
-    Array2D.init (strs.First().Length) (strs.Count()) (fun i j -> strs.[i].[j])
+    Array2D.init (strs.Count()) (strs.First().Length) (fun i j -> strs.[i].[j])
 
 let strs = ["ABCE"; "SFCS"; "ADEE"]
+
+let str = "bcced"
+
+let matr = parseStrs strs
