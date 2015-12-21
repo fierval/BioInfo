@@ -48,6 +48,7 @@
     <None Include="removeArray.fsx" />
     <None Include="matrixStringPath.fsx" />
     <None Include="nStacks.fsx" />
+    <None Include="bTree.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
