@@ -9,19 +9,23 @@ let rec insert (value : 'a) (tree : 'a Tree) =
     | Empty -> Node(Empty, value, Empty)
     | Node (left, v, right) -> if value < v then Node((insert value left), v, right) else Node(left, v, (insert value right))
 
+let move (t : 'a Tree) isRight=
+    match t with
+    | Empty -> Empty
+    | Node (left, v, right) -> if isRight then right else left
+
+let getValue = function
+    | Empty -> failwith "empty"
+    | Node (_, v, _) -> v
+
+(*http://codercareer.blogspot.com/2011/09/interview-question-no-1-binary-search.html
+Convert a binary search tree to a sorted double-linked list. We can only change the target of pointers, but cannot create any new nodes.
+For example, if we input a binary search tree as shown on the left side of the Figure 1, the output double-linked list is shown on the right side.
+*)
 let walkSorted (tree : 'a Tree) =
     let path = Stack<'a Tree>()
     let lst = List<'a>()
 
-    let rec move (t : 'a Tree) isRight=
-        match t with
-        | Empty -> Empty
-        | Node (left, v, right) -> if isRight then right else left
-
-    let getValue = function
-        | Empty -> failwith "empty"
-        | Node (_, v, _) -> v
-    
     let hasRight = function
     |Empty -> false
     |Node(_, _, right) -> right <> Empty
