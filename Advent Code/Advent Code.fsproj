@@ -47,6 +47,7 @@
     <None Include="Day 2.fsx" />
     <None Include="Day 3.fsx" />
     <None Include="Day 4.fsx" />
+    <None Include="Day 5.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
