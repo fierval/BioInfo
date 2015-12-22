@@ -13,6 +13,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Assembling DNA", "Assemblin
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Facebook", "Facebook\Facebook.fsproj", "{0CBD79C1-4C5E-4E45-8E33-DA7DEF9748DB}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Advent Code", "Advent Code\Advent Code.fsproj", "{2594107D-8EDF-4FA2-949F-E2881487737C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{0CBD79C1-4C5E-4E45-8E33-DA7DEF9748DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CBD79C1-4C5E-4E45-8E33-DA7DEF9748DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CBD79C1-4C5E-4E45-8E33-DA7DEF9748DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2594107D-8EDF-4FA2-949F-E2881487737C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2594107D-8EDF-4FA2-949F-E2881487737C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2594107D-8EDF-4FA2-949F-E2881487737C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2594107D-8EDF-4FA2-949F-E2881487737C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
