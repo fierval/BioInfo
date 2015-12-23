@@ -1,7 +1,5 @@
 ﻿open System.IO
-open System.Collections.Generic
 open System.Linq
-open System
 open System.Text.RegularExpressions
 
 let name = @"c:\users\boris\downloads\input.txt"
