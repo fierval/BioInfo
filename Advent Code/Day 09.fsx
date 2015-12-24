@@ -1,7 +1,4 @@
 ﻿open System.IO
-open System.Linq
-open System.Text.RegularExpressions
-
 let name = @"c:\users\boris\downloads\input.txt"
 
 let parse name =
