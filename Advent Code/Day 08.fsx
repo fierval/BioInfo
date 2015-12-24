@@ -1,4 +1,5 @@
-﻿open System.IO
+﻿(*http://adventofcode.com/day/8 *)
+open System.IO
 open System.Linq
 open System.Text.RegularExpressions
 

@@ -1,4 +1,5 @@
-﻿open System.IO
+﻿(*http://adventofcode.com/day/9 *)
+open System.IO
 let name = @"c:\users\boris\downloads\input.txt"
 
 let parse name =

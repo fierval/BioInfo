@@ -1,8 +1,7 @@
-﻿open System
+﻿(*http://adventofcode.com/day/11 *)
+open System
 open System.Linq
 open System.Collections.Generic
-open System.Diagnostics
-open System.Text
 
 let start = byte 'a'
 let finish = byte 'z'

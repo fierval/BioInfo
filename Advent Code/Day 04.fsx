@@ -1,4 +1,5 @@
-﻿open System.Security.Cryptography
+﻿(*http://adventofcode.com/day/4 *)
+open System.Security.Cryptography
 open System.Text
 open System
 open System.Diagnostics

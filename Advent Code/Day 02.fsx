@@ -1,4 +1,5 @@
-﻿open System.IO
+﻿(*http://adventofcode.com/day/2 *)
+open System.IO
 open System
 
 let name = @"c:\users\boris\downloads\input.txt"

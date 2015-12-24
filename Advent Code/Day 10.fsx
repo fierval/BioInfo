@@ -1,4 +1,5 @@
-﻿open System.Linq
+﻿(*http://adventofcode.com/day/10 *)
+open System.Linq
 open System.Collections.Generic
 open System.Diagnostics
 

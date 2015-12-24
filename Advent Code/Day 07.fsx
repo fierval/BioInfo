@@ -1,4 +1,5 @@
-﻿open System.IO
+﻿(*http://adventofcode.com/day/7 *)
+open System.IO
 open System.Collections.Generic
 open System.Linq
 open System

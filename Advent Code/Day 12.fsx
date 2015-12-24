@@ -1,4 +1,5 @@
-﻿open System.Text.RegularExpressions
+﻿(*http://adventofcode.com/day/12 *)
+open System.Text.RegularExpressions
 open System.IO
 
 let name = @"c:\users\boris\downloads\input.txt"

@@ -1,4 +1,5 @@
-﻿open System.IO
+﻿(*http://adventofcode.com/*)
+open System.IO
 
 let s = File.ReadAllText(@"c:\users\boris\downloads\input.txt")
 
