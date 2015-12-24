@@ -1,11 +1,6 @@
-﻿open System.IO
-open System
-open System.Linq
+﻿open System.Linq
 open System.Collections.Generic
 open System.Diagnostics
-open System.Text
-
-let name = @"c:\users\boris\downloads\input.txt"
 
 let genNext (s : List<byte>) =
     let mutable stop = false        
