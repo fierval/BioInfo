@@ -1,8 +1,5 @@
-﻿open System
-open System.Text.RegularExpressions
+﻿open System.Text.RegularExpressions
 open System.IO
-open System.Collections.Generic
-open System.Linq
 
 let name = @"c:\users\boris\downloads\input.txt"
 
@@ -19,27 +16,32 @@ let getSum json =
 let solve name =
     File.ReadAllText name |> getSum
 
+let move (json : string) j back =
+    let mutable jPos = j
+    let inc = if back then (-) else (+)
+    let dec = if back then (+) else (-)
+    let mutable braces = 1
+
+    while braces > 0 do
+        if json.[jPos] = '}' then braces <- dec braces 1
+        elif json.[jPos] = '{' then braces <- inc braces 1
+        jPos <- inc jPos 1
+    if back then jPos + 1 else jPos
+
 let solve2 name =
     let json = File.ReadAllText name
-    let mutable raw = getSum json
+    
     // find all reds
-    let mcreds = Regex.Matches(json, ":\\\"red")
-    let reds = Stack([for m in mcreds -> m.Index] |> List.rev)
-
-    let mutable j = reds.Peek()
-    let mutable stop = false
-
-    while not stop do
-        if reds.Count = 0 then stop <- true
-        while reds.Peek() < j do
-            reds.Pop() |> ignore
-        j <- reds.Pop()
-        let mutable braces = 1
-        let jBrace = json.LastIndexOf("{", j)
-        j <- j + ":\"red\"".Length 
-        while braces > 0 do
-            if json.[j] = '}' then braces <- braces - 1
-            j <- j + 1
-        let tainted = json.Substring(jBrace, j - jBrace + 1)
-        raw <- raw - getSum tainted
-    raw
+    let bounds =
+        Regex.Matches(json, ":\"red\"")
+        |> Seq.cast<Match>
+        |> Seq.map (fun m -> (move json m.Index true), (move json m.Index false))
+        |> Seq.toArray
+               
+    Regex.Matches(json, pat)
+    |> Seq.cast<Match>
+    |> Seq.filter 
+        (fun m -> 
+            not <| Array.exists (fun (start, end') -> m.Index > start && m.Index < end') bounds
+        )
+    |> Seq.sumBy (fun m -> int m.Value)
