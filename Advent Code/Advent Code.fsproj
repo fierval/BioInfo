@@ -43,15 +43,15 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Day 1.fsx" />
-    <None Include="Day 2.fsx" />
-    <None Include="Day 3.fsx" />
-    <None Include="Day 4.fsx" />
-    <None Include="Day 5.fsx" />
-    <None Include="Day 6.fsx" />
-    <None Include="Day 7.fsx" />
-    <None Include="Day 8.fsx" />
-    <None Include="Day 9.fsx" />
+    <None Include="Day 01.fsx" />
+    <None Include="Day 02.fsx" />
+    <None Include="Day 03.fsx" />
+    <None Include="Day 04.fsx" />
+    <None Include="Day 05.fsx" />
+    <None Include="Day 06.fsx" />
+    <None Include="Day 07.fsx" />
+    <None Include="Day 08.fsx" />
+    <None Include="Day 09.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
