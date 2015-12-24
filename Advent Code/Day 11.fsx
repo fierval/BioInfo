@@ -32,17 +32,17 @@ let toStr (arr : byte []) =
 
 let constrained (arr : byte []) =
     let triple = 
-        ([|0..arr.Length - 3|] 
-        |> Array.map(fun i -> arr.[i + 2] = arr.[i + 1] - 1uy && arr.[i + 1] = arr.[i] - 1uy)
-        |> Array.filter id).Length > 0
+        arr
+        |> Array.windowed 3 
+        |> Array.exists(fun [|c; b; a|] -> b = a + 1uy && c = b + 1uy)
 
     let double =
-        ([|0..arr.Length - 2|]
-        |> Array.fold 
-            (fun (st : Dictionary<byte * byte, int>) i -> 
-                if arr.[i] = arr.[i + 1] && not (st.ContainsKey(arr.[i], arr.[i+1])) then st.Add((arr.[i], arr.[i+1]), i)
-                st
-            ) (Dictionary<byte * byte, int>())).Count > 1
+        arr
+        |> Array.windowed 2
+        |> Array.filter(fun [|a; b|] -> a = b)
+        |> Array.distinct 
+        |> Array.length
+        |> fun l -> l > 1
     
     triple && double
         
