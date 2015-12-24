@@ -1,7 +1,6 @@
 ﻿(*http://adventofcode.com/day/10 *)
 open System.Linq
 open System.Collections.Generic
-open System.Diagnostics
 
 let genNext (s : List<byte>) =
     let mutable stop = false        
@@ -19,21 +18,10 @@ let genNext (s : List<byte>) =
     reps.Add(c)
     reps
 
-let genList (st : string) =
-    st.ToCharArray().Select(fun e -> byte (e.ToString())).ToList() 
-
 let genseq (s : string) n =
-    let sw = Stopwatch()
-    sw.Start()
-    let stl = genList s
-    let str = 
-        stl
-        |> Seq.unfold (fun st -> Some(st, genNext st))
-        |> Seq.skip n
-        |> Seq.take 1
-    let res = str.Single().Count
-    sw.Stop()
-    printfn "Elapsed time: %A" sw.Elapsed
-    res
+    {1..n}
+    |> Seq.fold 
+        (fun st _ -> genNext st) (s.ToCharArray().Select(fun e -> byte (e.ToString())).ToList())
+    |> fun s -> s.Count
 
 let s = "1113122113"
