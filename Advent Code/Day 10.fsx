@@ -1,4 +1,5 @@
 ﻿#load @"..\packages\FSharp.Charting.0.90.12\FSharp.Charting.fsx"
+open FSharp.Charting
 
 (*http://adventofcode.com/day/10 *)
 open System.Linq
@@ -21,15 +22,11 @@ let genNext (s : List<byte>) =
     reps
 
 let genseq (s : string) n =
-    let sw = Stopwatch()
-    sw.Start()
     let res =
         {1..n}
         |> Seq.fold 
             (fun st _ -> genNext st) (s |> Seq.map (fun s -> (string>>byte) s) |> fun a -> a.ToList())
         |> fun s -> s.Count
-    sw.Stop()
-    printfn "Elapsed: %A" sw.Elapsed
     res
         
 let s = "1113122113"
@@ -46,14 +43,35 @@ let read (input : string) =
     |> fun xs -> System.String.Join("", xs)
 
 let genseqf (s : string) n =
-    let sw = Stopwatch()
-    sw.Reset()
-    sw.Start()
     let res = 
         { 1..n }
         |> Seq.fold (fun last _ -> read last) s
         |> Seq.length
 
-    sw.Stop()
-    printfn "Elapsed: %A" sw.Elapsed
     res
+
+let compare (s : string ) (basis : int list) =
+    let sw = Stopwatch()
+    let timeIt e (f : string -> int -> int) = 
+        {1..3} 
+            |> Seq.map (fun _ -> 
+                        sw.Reset()
+                        sw.Start()
+                        f s e |> ignore
+                        float sw.ElapsedMilliseconds
+                        )
+            |> Seq.average
+    
+    let cpp = basis |> Seq.fold (fun st e -> [e, timeIt e genseq] @ st) List.empty
+    let fs = basis |> Seq.fold (fun st e -> [e, timeIt e genseqf] @ st) List.empty
+
+    Chart.Combine(
+        [Chart.Line(cpp, Name="CPP-like")
+         Chart.Line(fs, Name="FSharpy")
+        ] 
+    )
+        .WithYAxis(Log=false, Title = "msec")
+        .WithXAxis(Title = "times")
+        .WithLegend(InsideArea=false) 
+
+compare s [40..3..51]
