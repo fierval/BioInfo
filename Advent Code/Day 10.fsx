@@ -74,4 +74,4 @@ let compare (s : string ) (basis : int list) =
         .WithXAxis(Title = "times")
         .WithLegend(InsideArea=false) 
 
-compare s [40..3..51]
+//compare s [40..3..51]
