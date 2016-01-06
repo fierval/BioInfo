@@ -24,7 +24,7 @@ let lookAndSayKernel (arr : deviceptr<int8>) (len : int) (out : deviceptr<int8>)
         let c = arr.[ind]
         let idxOut = 2 * ind
 
-        if ind = 0 || ind > 0 && arr.[ind - 1] <> c then
+        if ind = 0 || arr.[ind - 1] <> c then
             let mutable i = 1
             while ind + i < len && c = arr.[ind + i] do
                 i <- i + 1

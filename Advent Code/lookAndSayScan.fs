@@ -19,7 +19,7 @@ let lookAndSayKernelSimple (arr : deviceptr<int>) (len : int) (out : deviceptr<i
     if ind < len then
         let c = arr.[ind]
         let idxOut = 2 * ind
-        let prevUnrepeated = if ind = 0 || ind > 0 && arr.[ind - 1] <> c then 1 else 0
+        let prevUnrepeated = if ind = 0 || arr.[ind - 1] <> c then 1 else 0
         flags.[2 * ind] <- prevUnrepeated
         flags.[2 * ind + 1] <- prevUnrepeated
 
