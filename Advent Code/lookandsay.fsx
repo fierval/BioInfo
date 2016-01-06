@@ -22,15 +22,18 @@ let lookAndSayKernel (arr : deviceptr<int8>) (len : int) (out : deviceptr<int8>)
 
     if ind < len then
         let c = arr.[ind]
+        let idxOut = 2 * ind
 
         if ind = 0 || ind > 0 && arr.[ind - 1] <> c then
             let mutable i = 1
             while ind + i < len && c = arr.[ind + i] do
-                out.[2 * (ind + i)] <- 0y
-                out.[2 * (ind + i) + 1] <- 0y
                 i <- i + 1
-            out.[2 * ind] <- int8 i
-            out.[2 * ind + 1] <- c
+            out.[idxOut] <- int8 i
+            out.[idxOut + 1] <- c
+        else
+            out.[idxOut] <- 0y
+            out.[idxOut + 1] <- 0y
+
 
 let lookAndSayGpu (s : string) n =
     let arr = s |> Seq.map (fun c -> (string>>int8) c) |> Seq.toArray

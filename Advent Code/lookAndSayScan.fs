@@ -18,19 +18,20 @@ let lookAndSayKernelSimple (arr : deviceptr<int>) (len : int) (out : deviceptr<i
 
     if ind < len then
         let c = arr.[ind]
-        flags.[2 * ind] <- 0
-        flags.[2 * ind + 1] <- 0
+        let idxOut = 2 * ind
+        let prevUnrepeated = if ind = 0 || ind > 0 && arr.[ind - 1] <> c then 1 else 0
+        flags.[2 * ind] <- prevUnrepeated
+        flags.[2 * ind + 1] <- prevUnrepeated
 
-        if ind = 0 || ind > 0 && arr.[ind - 1] <> c then
+        if prevUnrepeated = 1 then
             let mutable i = 1
             while ind + i < len && c = arr.[ind + i] do
-                out.[2 * (ind + i)] <- 0
-                out.[2 * (ind + i) + 1] <- 0
                 i <- i + 1
-            out.[2 * ind] <- i
-            out.[2 * ind + 1] <- c
-            flags.[2 * ind] <- 1
-            flags.[2 * ind + 1] <- 1
+            out.[idxOut] <- i
+            out.[idxOut + 1] <- c
+        else
+            out.[idxOut] <- 0
+            out.[idxOut + 1] <- 0
 
 [<Kernel; ReflectedDefinition>]
 let copyScanned (arr : deviceptr<int>) (out : deviceptr<int>) (len : int) (flags : deviceptr<int>) (addrmap : deviceptr<int>) =
