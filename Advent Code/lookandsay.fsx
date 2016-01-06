@@ -17,7 +17,7 @@ Alea.CUDA.Settings.Instance.Resource.Path <- Path.Combine(__SOURCE_DIRECTORY__, 
 let worker = Worker.Default
 
 [<Kernel; ReflectedDefinition>]
-let lookAndSayKernel (arr : deviceptr<int8>) (len : int) (out : deviceptr<char2>) =
+let lookAndSayKernel (arr : deviceptr<int8>) (len : int) (out : deviceptr<int8>) =
     let ind = blockIdx.x * blockDim.x + threadIdx.x
 
     if ind < len then
@@ -26,9 +26,11 @@ let lookAndSayKernel (arr : deviceptr<int8>) (len : int) (out : deviceptr<char2>
         if ind = 0 || ind > 0 && arr.[ind - 1] <> c then
             let mutable i = 1
             while ind + i < len && c = arr.[ind + i] do
-                out.[ind + i] <- char2()
+                out.[2 * (ind + i)] <- 0y
+                out.[2 * (ind + i) + 1] <- 0y
                 i <- i + 1
-            out.[ind] <- char2(int8 i, c)
+            out.[2 * ind] <- int8 i
+            out.[2 * ind + 1] <- c
 
 let lookAndSayGpu (s : string) n =
     let arr = s |> Seq.map (fun c -> (string>>int8) c) |> Seq.toArray
@@ -41,7 +43,7 @@ let lookAndSayGpu (s : string) n =
             let lp = LaunchParam(gridSize, blockSize)
 
             use dArr = worker.Malloc(arr)
-            use dOut = worker.Malloc(arr.Length)
+            use dOut = worker.Malloc(arr.Length * 2)
 
             worker.Launch <@lookAndSayKernel@> lp dArr.Ptr arr.Length dOut.Ptr
 
@@ -49,9 +51,7 @@ let lookAndSayGpu (s : string) n =
 
             let arr = 
                 out
-                |> Array.filter (fun c2 -> c2.x > 0y) 
-                |> Array.map (fun c2 -> [|c2.x; c2.y|])
-                |> Array.concat
+                |> Array.filter (fun b -> b > int8 0) 
 
             loop arr (n - 1)
 
@@ -82,6 +82,6 @@ let compareGpu (s : string ) (basis : int list) =
     )
         .WithYAxis(Log=false, Title = "msec")
         .WithXAxis(Title = "times")
-        .WithLegend(InsideArea=false) 
+        .WithLegend(InsideArea=false)
 
-compareGpu s [1..40]
+compareGpu s [30..51]
