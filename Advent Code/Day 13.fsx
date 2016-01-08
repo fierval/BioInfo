@@ -8,17 +8,17 @@ type Sitting = Map<string * string, int>
 
 let distrib e L =
     let rec aux pre post = 
-        seq {
+        [
             match post with
             | [] -> yield (L @ [e])
             | h::t -> yield (List.rev pre @ [e] @ post)
                       yield! aux (h::pre) t 
-        }
+        ]
     aux [] L
 
 let rec perms = function 
-    | [] -> Seq.singleton []
-    | h::t -> Seq.collect (distrib h) (perms t)
+    | [] -> List.singleton []
+    | h::t -> List.collect (distrib h) (perms t)
 
 let parse (strs : string []) : Sitting * string list =
     let raw =
@@ -31,26 +31,24 @@ let parse (strs : string []) : Sitting * string list =
                 key, val'
             )
     let map = raw |> Map.ofArray
-    let names = raw |> Array.toList |> List.map (fun ((a, b), c) -> [a; b]) |> List.concat |> List.distinct
+    let names = raw |> Array.toList |> List.map (fun ((a, b), _) -> [a; b]) |> List.concat |> List.distinct
     map, names    
 
 
 let strs = File.ReadAllLines(name)
 
 let sittings (edges : Sitting) (names : string list) =
-    let permutes = perms names |> Seq.toList
-
-    permutes
-        |> List.map 
-            (fun permutation -> 
-                permutation
-                    |> List.windowed 2
-                    |> List.map (fun [a; b] -> [edges.[(a, b)]; edges.[(b,a)]])
-                    |> List.concat
-                    |> fun l -> edges.[permutation.[permutation.Length - 1], permutation.[0]] :: edges.[permutation.[0], permutation.[permutation.Length - 1]] :: l
-                    |> List.sum
-            )
-        |> List.max
+    perms names 
+    |> List.map 
+        (fun permutation -> 
+            permutation
+                |> List.windowed 2
+                |> List.map (fun [a; b] -> [edges.[(a, b)]; edges.[(b,a)]])
+                |> List.concat
+                |> fun l -> edges.[permutation.[permutation.Length - 1], permutation.[0]] :: edges.[permutation.[0], permutation.[permutation.Length - 1]] :: l
+                |> List.sum
+        )
+    |> List.max
              
 let edges, names = parse strs
 sittings edges names
