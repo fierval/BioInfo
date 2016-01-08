@@ -80,6 +80,9 @@
     <Error Condition="!Exists('..\packages\Alea.CUDA.2.2.0.3307\build\Alea.CUDA.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Alea.CUDA.2.2.0.3307\build\Alea.CUDA.targets'))" />
   </Target>
   <ItemGroup>
+    <None Include="lookandsay.fsx" />
+    <Compile Include="lookAndSayScan.fs" />
+    <Content Include="packages.config" />
     <None Include="Day 01.fsx" />
     <None Include="Day 02.fsx" />
     <None Include="Day 03.fsx" />
@@ -92,9 +95,8 @@
     <None Include="Day 10.fsx" />
     <None Include="Day 11.fsx" />
     <None Include="Day 12.fsx" />
-    <None Include="lookandsay.fsx" />
-    <Content Include="packages.config" />
-    <Compile Include="lookAndSayScan.fs" />
+    <None Include="Day 13.fsx" />
+    <None Include="Day 14.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Alea.CUDA">
