@@ -41,7 +41,6 @@ let solve (strs : string []) n =
        )
     prods |> List.maxBy (fun (p, l) -> p)
 
-
 (* Part 2 *)
 let solveCal (strs : string []) n cal =
     let combs = splitNum n strs.Length
