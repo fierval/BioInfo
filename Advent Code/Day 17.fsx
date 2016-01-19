@@ -26,9 +26,8 @@ let rec listDecomp (data : int list) n val' =
         if n = 0 then yield val'
         elif n < 0 then yield []
         else
-        
-                for i = 0 to data.Length - 1 do
-                    yield! listDecomp data.[i+1..] (n - data.[i]) (data.[i] :: val')
+            for i = 0 to data.Length - 1 do
+                yield! listDecomp data.[i+1..] (n - data.[i]) (data.[i] :: val')
     ] |> List.filter (fun l -> l.Length > 0)
 
 let solve (data : int list) n =
