@@ -33,13 +33,14 @@ let parse (strs : string []) =
             kindStr 
             |> Array.map
                 (fun s -> 
-                    let [|_; money; damage; armor|] = s.Trim().Split([|" "|], StringSplitOptions.RemoveEmptyEntries)
+                    let [|_; money; damage; armor|] = s.Trim().Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     int money, if int damage = 0 then -int armor else int damage
                  )
     let empties = -1::([0..strs.Length - 1] |> List.filter(fun i -> String.IsNullOrEmpty(strs.[i])))
-    [for i = 1 to empties.Length - 1 do
-        yield strs.[empties.[i-1] + 1..empties.[i] - 1] |> parseKind
-     yield parseKind strs.[empties.[empties.Length - 1] + 1..]
+    [
+        for i = 1 to empties.Length - 1 do
+            yield strs.[empties.[i-1] + 1..empties.[i] - 1] |> parseKind
+        yield parseKind strs.[empties.[empties.Length - 1] + 1..]
     ]
 
 let playerHits = 100
