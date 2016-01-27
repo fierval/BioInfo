@@ -27,7 +27,7 @@ let reverseAdj (graph : string Euler) =
         graph
             .SelectMany(fun kvp -> seq {for v in kvp.Value -> (kvp.Key, v)})
             .GroupBy(fun (o, i) -> i)
-            .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<string, string * string>) -> gr.Select(fun (o, i) -> i).ToList()))
+            .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<string, string * string>) -> gr.Select(fun (o, i) -> o).ToList()))
 
 (*deep copy a graph*)
 let cloneDict (dct : string Euler) =
@@ -42,35 +42,38 @@ let allEulerian (graph : string Euler) =
     let isDone () =
         let curGraph, revCurGraph = allCycles.First()
         curGraph.LongCount(fun kvp -> kvp.Value.Count > 1) = 0L
+    
+    let isConnected (gr : string Euler) =
+        let start = gr.First().Key
+        let mutable next = start
+        let mutable count = 0
+        while count = 0 || next <> start do
+            next <- gr.[next].Single()
+            count <- count + 1
+        count = gr.Count
 
     while not (isDone ()) do
         let curGraph, revCurGraph = allCycles.First()
         let outVertices = revCurGraph.Where(fun kvp -> kvp.Value.Count > 1).Select(fun kvp -> kvp.Key)
         allCycles.RemoveAt(0)
         for v in outVertices do //for each in-edge (u, v) into v
-            let u's = revCurGraph.[v] // all edges u coming into v
-            let w's = curGraph.[v] // for each out edge v, w 
-            let newGraphs = 
-                u's
-                    .SelectMany(fun u i -> 
-                                let newGraph = cloneDict curGraph
-                                let newRevGraph = cloneDict revCurGraph
-                                w's.Select(fun w j -> 
-                                            let x = v + "_" + i.ToString() + "_" + j.ToString()
-                                            let newVert = List<string>()
-                                            newVert.Add(w)
-                                            newGraph.Add(x, newVert)
-                                            newGraph.[u].Add(x)
-                                            newGraph.[v].RemoveAt(newGraph.[v].IndexOf w)
-                                            newGraph.[u].RemoveAt(newGraph.[u].IndexOf v)
-                                            if newGraph.[u].Count = 0 || newGraph.[v].Count = 0 then Unchecked.defaultof<string Euler>, Unchecked.defaultof<string Euler>
+            for i, u in revCurGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do// all edges u coming into v
+                for j, w in curGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do // for each out edge v, w 
+                    let newGraph = cloneDict curGraph
+                    let newRevGraph = cloneDict revCurGraph
+                    let x = v + "_" + i.ToString() + "_" + j.ToString()
+                    newGraph.Add(x, [w].ToList())
+                    newGraph.[u].Add(x)
+                    newGraph.[v].RemoveAt(newGraph.[v].IndexOf w)
+                    newGraph.[u].RemoveAt(newGraph.[u].IndexOf v)
 
-                                            else
-                                                newRevGraph.[w].RemoveAt(newRevGraph.[w].IndexOf v)
-                                                newRevGraph.[v].RemoveAt(newRevGraph.[v].IndexOf u)
-                                                if newRevGraph.[v].Count = 0 then newRevGraph.Remove(v) |> ignore
-                                                newGraph, newRevGraph               
-                                ).AsEnumerable()).Where(fun (gr, rev) -> rev <> Unchecked.defaultof<string Euler>)
-            allCycles.AddRange newGraphs
+                    newRevGraph.[w].RemoveAt(newRevGraph.[w].IndexOf v)
+                    newRevGraph.[v].RemoveAt(newRevGraph.[v].IndexOf u)
+                    newRevGraph.Add(x, [u].ToList())
+                    newRevGraph.[w].Add(x)
+
+                    allCycles.Add(newGraph, newRevGraph)               
+
+    allCycles |> Seq.filter (fun gr -> isConnected (fst gr)) |> Seq.toList |> List.unzip |> fst                            
 
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
