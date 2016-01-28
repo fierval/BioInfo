@@ -33,6 +33,36 @@ let reverseAdj (graph : string Euler) =
 let cloneDict (dct : string Euler) =
     dct.Select(fun kvp -> new KeyValuePair<string, List<string>>(kvp.Key, kvp.Value.Select(id).ToList())).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<string, List<string>>) -> kvp.Value))
 
+let  walk (gr : string Euler) =
+    let start = gr.First().Key
+    let mutable next = start
+    let mutable count = 0
+    let loop = List<string>()
+    while count = 0 || next <> start do
+        loop.Add(next)
+        next <- gr.[next].Single()
+        count <- count + 1
+    loop
+
+let isConnected (gr : string Euler) =
+    let count = walk gr |> fun l -> l.Count
+    count = gr.Count
+
+// compare two eulerian cycles
+let (=.) (a : string Euler) (b : string Euler) =
+    let la = walk a
+    let lb = walk b
+    if la.Count <> lb.Count then false
+    else
+        let sa = (la |> Seq.fold (fun st e -> st + e.[0].ToString()) String.Empty) + la.[0]
+        let sb = (lb |> Seq.fold (fun st e -> st + e.[0].ToString()) String.Empty) + lb.[0]
+        if sa.Length < 3 then sa = sb || sa = String(sb.Reverse().ToArray())
+        else
+            let two = sa.[0..1]
+            let idx = sb.IndexOf two
+            let mutate = sb.[idx..] + sb.[1..idx - 1]
+            mutate = sa
+
 let allEulerian (graph : string Euler) =
     let allCycles = List<string Euler * string Euler>()
     let revGraph = reverseAdj graph
@@ -43,15 +73,6 @@ let allEulerian (graph : string Euler) =
         let curGraph, revCurGraph = allCycles.First()
         curGraph.LongCount(fun kvp -> kvp.Value.Count > 1) = 0L
     
-    let isConnected (gr : string Euler) =
-        let start = gr.First().Key
-        let mutable next = start
-        let mutable count = 0
-        while count = 0 || next <> start do
-            next <- gr.[next].Single()
-            count <- count + 1
-        count = gr.Count
-
     while not (isDone ()) do
         let curGraph, revCurGraph = allCycles.First()
         let outVertices = revCurGraph.Where(fun kvp -> kvp.Value.Count > 1).Select(fun kvp -> kvp.Key)
