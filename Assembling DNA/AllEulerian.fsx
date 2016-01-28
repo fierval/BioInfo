@@ -56,12 +56,10 @@ let (=.) (a : string Euler) (b : string Euler) =
     else
         let sa = (la |> Seq.fold (fun st e -> st + e.[0].ToString()) String.Empty) + la.[0]
         let sb = (lb |> Seq.fold (fun st e -> st + e.[0].ToString()) String.Empty) + lb.[0]
-        if sa.Length < 3 then sa = sb || sa = String(sb.Reverse().ToArray())
-        else
-            let two = sa.[0..1]
-            let idx = sb.IndexOf two
-            let mutate = sb.[idx..] + sb.[1..idx - 1]
-            mutate = sa
+        let two = sa.[0..1]
+        let idx = sb.IndexOf two
+        let mutate = sb.[idx..] + sb.[1..idx - 1]
+        mutate = sa
 
 let allEulerian (graph : string Euler) =
     let allCycles = List<string Euler * string Euler>()
@@ -95,6 +93,6 @@ let allEulerian (graph : string Euler) =
 
                     allCycles.Add(newGraph, newRevGraph)               
 
-    allCycles |> Seq.filter (fun gr -> isConnected (fst gr)) |> Seq.toList |> List.unzip |> fst                            
+    allCycles |> Seq.filter (fst>>isConnected) |> Seq.toList |> List.unzip |> fst                            
 
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
