@@ -68,50 +68,63 @@ let isConnectedLoop (gr : string Euler) =
     count = gr.Count
 
 // compare two eulerian cycles
-let (=.) (a : string Euler) (b : string Euler) =
-    let la = walk a
-    let lb = walk b
-    if la.Count <> lb.Count then false
-    else
-        let sa = (la |> Seq.fold (fun st e -> st + e.[0].ToString()) String.Empty) + la.[0]
-        let sb = (lb |> Seq.fold (fun st e -> st + e.[0].ToString()) String.Empty) + lb.[0]
+let (=.) (sa : string) (sb : string) =
+    sa = sb ||
+    (
         let two = sa.[0..1]
         let idx = sb.IndexOf two
-        let mutate = sb.[idx..] + sb.[1..idx - 1]
+        let mutate = sb.[idx..] + sb.[1..idx - 1] + sb.[idx..idx]
         mutate = sa
+    )
+
+let isPossibleLoop (gr : string Euler) =
+    not (gr |> Seq.exists (fun kvp -> kvp.Value.Count > 1))
 
 let allEulerian (graph : string Euler) =
-    let allCycles = List<string Euler * string Euler>()
-    let revGraph = reverseAdj graph
+    [
+        let allCycles = List<string Euler * string Euler>()
+        let allLoops = List<string>()
+        let revGraph = reverseAdj graph
 
-    allCycles.Add(graph, revGraph)
+        allCycles.Add(graph, revGraph)
 
-    let isDone () =
-        let curGraph, revCurGraph = allCycles.First()
-        curGraph.LongCount(fun kvp -> kvp.Value.Count > 1) = 0L
-    
-    while not (isDone ()) do
-        let curGraph, revCurGraph = allCycles.First()
-        let outVertices = revCurGraph.Where(fun kvp -> kvp.Value.Count > 1).Select(fun kvp -> kvp.Key)
-        allCycles.RemoveAt(0)
-        for v in outVertices do //for each in-edge (u, v) into v
-            for i, u in revCurGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do// all edges u coming into v
-                for j, w in curGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do // for each out edge v, w 
-                    let newGraph = cloneDict curGraph
-                    let newRevGraph = cloneDict revCurGraph
-                    let x = v + "_" + i.ToString() + "_" + j.ToString()
-                    newGraph.Add(x, [w].ToList())
-                    newGraph.[u].Add(x)
-                    newGraph.[v].RemoveAt(newGraph.[v].IndexOf w)
-                    newGraph.[u].RemoveAt(newGraph.[u].IndexOf v)
+        let isDone () =
+            allCycles.Count = 0 || (
+                                    let curGraph, revCurGraph = allCycles.First()
+                                    isPossibleLoop curGraph
+            )
+            
+        while not (isDone ()) do
+            let curGraph, revCurGraph = allCycles.First()
+            let outVertices = revCurGraph.Where(fun kvp -> kvp.Value.Count > 1).Select(fun kvp -> kvp.Key)
+            allCycles.RemoveAt(0)
+            for v in outVertices do //for each in-edge (u, v) into v
+                for i, u in revCurGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do// all edges u coming into v
+                    for j, w in curGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do // for each out edge v, w 
+                        let newGraph = cloneDict curGraph
+                        let newRevGraph = cloneDict revCurGraph
+                        let x = v + "_" + i.ToString() + "_" + j.ToString()
+                        newGraph.Add(x, [w].ToList())
+                        newGraph.[u].Add(x)
+                        newGraph.[v].RemoveAt(newGraph.[v].IndexOf w)
+                        newGraph.[u].RemoveAt(newGraph.[u].IndexOf v)
 
-                    newRevGraph.[w].RemoveAt(newRevGraph.[w].IndexOf v)
-                    newRevGraph.[v].RemoveAt(newRevGraph.[v].IndexOf u)
-                    newRevGraph.Add(x, [u].ToList())
-                    newRevGraph.[w].Add(x)
-                    if isConnected newGraph then
-                        allCycles.Add(newGraph, newRevGraph)               
+                        newRevGraph.[w].RemoveAt(newRevGraph.[w].IndexOf v)
+                        newRevGraph.[v].RemoveAt(newRevGraph.[v].IndexOf u)
+                        newRevGraph.Add(x, [u].ToList())
+                        newRevGraph.[w].Add(x)
+                        if isConnected newGraph then
+                            if isPossibleLoop newGraph then
+                                let la = walk newGraph
+                                let sa = 
+                                    (la 
+                                    |> Seq.fold 
+                                            (fun st e -> st + e.[0].ToString()) String.Empty) + la.[0]
 
-    allCycles |> Seq.toList |> List.unzip |> fst                            
-
+                                if not (allLoops |> Seq.exists (fun e -> e =. sa)) then 
+                                    allLoops.Add(sa)
+                                    yield sa
+                            else
+                                allCycles.Add(newGraph, newRevGraph)               
+    ]
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
