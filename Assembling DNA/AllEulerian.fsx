@@ -45,6 +45,25 @@ let  walk (gr : string Euler) =
     loop
 
 let isConnected (gr : string Euler) =
+    let start = gr.First().Key
+    
+    let visited = HashSet<string>([start])
+    let queue = Queue()
+    let mutable traversed = 1
+    queue.Enqueue(start)
+    
+    while queue.Count > 0 do
+        let cur = queue.Dequeue()
+        let next = gr.[cur]
+        let toVisit = next |> Seq.filter (fun e -> not (visited.Contains e))
+        traversed <- traversed + toVisit.Count()
+        for notVisited in toVisit do
+            visited.Add(notVisited) |> ignore
+            queue.Enqueue(notVisited)
+                
+    gr.Count = traversed
+
+let isConnectedLoop (gr : string Euler) =
     let count = walk gr |> fun l -> l.Count
     count = gr.Count
 
@@ -90,9 +109,9 @@ let allEulerian (graph : string Euler) =
                     newRevGraph.[v].RemoveAt(newRevGraph.[v].IndexOf u)
                     newRevGraph.Add(x, [u].ToList())
                     newRevGraph.[w].Add(x)
+                    if isConnected newGraph then
+                        allCycles.Add(newGraph, newRevGraph)               
 
-                    allCycles.Add(newGraph, newRevGraph)               
-
-    allCycles |> Seq.filter (fst>>isConnected) |> Seq.toList |> List.unzip |> fst                            
+    allCycles |> Seq.toList |> List.unzip |> fst                            
 
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
