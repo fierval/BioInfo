@@ -2,14 +2,26 @@
 open System.Collections.Generic
 open System.Linq
 
-#load "3g-EulerPath.fsx"
-#load "3d-3e-debruin.fsx"
-#load "3h-3i-Genome.fsx"
+#load "AllEulerian.fsx"
 
+open ``3f-EulerCycle``
 open ``3g-EulerPath``
 open ``3d-3e-debruin``
 open ``3h-3i-Genome``
 open System.IO
+
+let completeEuler (graph : string Euler) =
+    let edge = findUnbalanced graph
+    
+    let out, in' = edge
+    graph.[out].Add(in')
+    out, in'
+
+let cycleToPath (graph : string) (out : string) (in' : string) =
+    let edge = out + in'
+    let idx = graph.IndexOf edge + 1
+    if idx = 0 then failwith (edge + " not found")
+    graph.[idx..graph.Length - 2] + graph.[0..idx-1]
 
 let genome (nucleotides : string seq) =
     nucleotides |> debruijn |> findPath |> toString

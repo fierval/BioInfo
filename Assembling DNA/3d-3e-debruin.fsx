@@ -4,9 +4,11 @@ open System.Collections.Generic
 
 #load @"3a-3b.fsx"
 #load @"3c-OverlapGraph.fsx"
+#load @"3f-EulerCycle.fsx"
 
 open ``3a-3b``
 open ``3c-OverlapGraph``
+open ``3f-EulerCycle``
 
 let debruijnString (s : string) n =
     let kmers = decompose s (n - 1)
@@ -34,7 +36,7 @@ let solveStr name =
     let sol = debruijnString s n |> decorate
     File.WriteAllLines(@"c:\temp\debruin.txt", sol)
 
-let debruijn (kmers : string seq) =
+let debruijn (kmers : string seq) : string Euler =
     kmers.ToLookup(prefix, suffix)
         .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<string, string>) -> gr.OrderBy(fun e -> e).ToList()))
 
