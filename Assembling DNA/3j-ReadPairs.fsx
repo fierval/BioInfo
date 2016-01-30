@@ -15,13 +15,13 @@ let genome (nucleotides : string seq) =
     nucleotides |> debruijn |> findPath |> toString
 
 let parseAndSplitPairs (pairs : string seq) =
-    let pref = List<string>()
-    let suff = List<string>()
-    pairs |> Seq.iter (fun s -> 
-                        let arr = s.Trim().Split([|'|'|])
-                        pref.Add(arr.[0]); suff.Add(arr.[1]))
-
-    pref, suff
+    pairs 
+    |> Seq.map 
+        (fun s -> 
+            let arr = s.Trim().Split([|'|'|])
+            arr.[0], arr.[1])
+    |> Seq.toList
+    |> List.unzip    
 
 let reconstructPath (arr : string seq) d =
     let pref, suff = parseAndSplitPairs arr
@@ -33,7 +33,10 @@ let reconstructPath (arr : string seq) d =
     let prefixCommon = prefPath.Substring(k + d + 1)
     let suffixCommon = suffPath.Substring(0, suffPath.Length - k - d - 1)
 
-    if prefixCommon = suffixCommon then prefPath.Substring(0, k + d) + suffPath else ""
+    if prefixCommon = suffixCommon then
+        let res = prefPath.Substring(0, k + d) + suffPath 
+        res.[0..res.Length - 2]
+        else ""
 
 let arr = ["GAGA|TTGA";"TCGT|GATG";"CGTG|ATGT";"TGGT|TGAG";"GTGA|TGTT";"GTGG|GTGA";"TGAG|GTTG";"GGTC|GAGA";"GTCG|AGAT"]
 let d = 2
