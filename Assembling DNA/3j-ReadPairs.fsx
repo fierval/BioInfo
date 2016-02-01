@@ -21,10 +21,15 @@ let completeEuler (graph : string Euler) =
     graph, out, in'
 
 let cycleToPath (out : string) (in' : string) (graph : string) =
+    let k = out.Length
     let edge = out + in'
-    let idx = graph.IndexOf edge + 1
+    let idx = graph.IndexOf edge + k
     if idx = 0 then failwith (edge + " not found")
-    graph.[idx..graph.Length - 2] + graph.[0..idx-1]
+    graph.[idx..graph.Length - k - 1] + graph.[0..idx-1]
+
+let eulerToDebruijn (k : int) (gr : string) =
+    //F# 4.0: ctor's as fst class citizens.
+    gr.ToCharArray() |> Array.chunkBySize k |> Array.map String |> toString 
 
 let prep (nucleotides : string seq) =
     nucleotides |> debruijn |> completeEuler //|> findPath |> toString
@@ -46,16 +51,15 @@ let reconstructPath (arr : string seq) d =
     let k = pref.[0].Length
 
     let completePath (prefPath : string) (suffPath : string) =
-        let prefixCommon = prefPath.Substring(k + d + 1)
-        let suffixCommon = suffPath.Substring(0, suffPath.Length - k - d - 1)
+        let prefixCommon = prefPath.Substring(k + d)
+        let suffixCommon = suffPath.Substring(0, suffPath.Length - k - d)
 
         if prefixCommon = suffixCommon then
-            let res = prefPath.Substring(0, k + d) + suffPath 
-            res.[0..res.Length - 2]
+            prefPath.Substring(0, k + d) + suffPath 
             else ""
 
-    let allPrefs = allEulerian prefPaths |> List.map (cycleToPath outPref inPref)
-    let allSuffs = allEulerian suffPaths |> List.map (cycleToPath outSuff inSuff)
+    let allPrefs = allEulerian prefPaths |> List.map (cycleToPath outPref inPref >> eulerToDebruijn (k - 1))
+    let allSuffs = allEulerian suffPaths |> List.map (cycleToPath outSuff inSuff >> eulerToDebruijn (k - 1))
 
     let mutable res = String.Empty
     let mutable stop = false
@@ -64,6 +68,7 @@ let reconstructPath (arr : string seq) d =
             for j in [0..allSuffs.Count() - 1] do
                 res <- completePath allPrefs.[i] allSuffs.[j]
                 if not (String.IsNullOrEmpty res) then stop <- true
+        stop <- true
     res
 
 let arr = ["GAGA|TTGA";"TCGT|GATG";"CGTG|ATGT";"TGGT|TGAG";"GTGA|TGTT";"GTGG|GTGA";"TGAG|GTTG";"GGTC|GAGA";"GTCG|AGAT"]

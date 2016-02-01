@@ -117,11 +117,7 @@ let allEulerian (graph : string Euler) =
                         if isConnected newGraph then
                             if isPossibleLoop newGraph then
                                 let la = walk newGraph
-                                let sa = 
-                                    (la 
-                                    |> Seq.fold 
-                                            (fun st e -> st + e.[0..k-1]) String.Empty) + la.[0]
-
+                                let sa = (la |> Seq.fold (fun st e -> st + e.[0..k-1]) String.Empty) + la.[0]
                                 if not (allLoops |> Seq.exists (fun e -> isEq e sa k)) then 
                                     allLoops.Add(sa)
                                     yield sa
