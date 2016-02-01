@@ -108,6 +108,7 @@
     <None Include="Day 19.fsx" />
     <None Include="Day 20.fsx" />
     <None Include="Day 21.fsx" />
+    <None Include="Day 22.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Alea.CUDA">

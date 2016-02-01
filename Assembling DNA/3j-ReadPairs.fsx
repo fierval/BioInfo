@@ -16,6 +16,7 @@ let completeEuler (graph : string Euler) =
     let edge = findUnbalanced graph
     
     let out, in' = edge
+    if not (graph.ContainsKey out) then graph.Add(out, [].ToList())
     graph.[out].Add(in')
     graph, out, in'
 
@@ -38,7 +39,6 @@ let parseAndSplitPairs (pairs : string seq) =
     |> List.unzip    
 
 let reconstructPath (arr : string seq) d =
-
     let pref, suff = parseAndSplitPairs arr
 
     let prefPaths, outPref, inPref = prep pref

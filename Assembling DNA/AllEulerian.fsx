@@ -68,12 +68,12 @@ let isConnectedLoop (gr : string Euler) =
     count = gr.Count
 
 // compare two eulerian cycles
-let (=.) (sa : string) (sb : string) =
+let isEq (sa : string) (sb : string) k =
     sa = sb ||
     (
-        let two = sa.[0..1]
+        let two = sa.[0..2 * k - 1]
         let idx = sb.IndexOf two
-        let mutate = sb.[idx..] + sb.[1..idx - 1] + sb.[idx..idx]
+        let mutate = sb.[idx..] + sb.[k..idx - 1] + sb.[idx..idx + k - 1]
         mutate = sa
     )
 
@@ -82,6 +82,7 @@ let isPossibleLoop (gr : string Euler) =
 
 let allEulerian (graph : string Euler) =
     [
+        let k = graph.First().Key.Length
         let allCycles = List<string Euler * string Euler>()
         let allLoops = List<string>()
         let revGraph = reverseAdj graph
@@ -119,9 +120,9 @@ let allEulerian (graph : string Euler) =
                                 let sa = 
                                     (la 
                                     |> Seq.fold 
-                                            (fun st e -> st + e.[0].ToString()) String.Empty) + la.[0]
+                                            (fun st e -> st + e.[0..k-1]) String.Empty) + la.[0]
 
-                                if not (allLoops |> Seq.exists (fun e -> e =. sa)) then 
+                                if not (allLoops |> Seq.exists (fun e -> isEq e sa k)) then 
                                     allLoops.Add(sa)
                                     yield sa
                             else
