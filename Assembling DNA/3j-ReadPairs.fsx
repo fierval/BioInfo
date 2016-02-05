@@ -74,7 +74,7 @@ let reconstructPath (arr : string seq) d =
 let arr = ["GAGA|TTGA";"TCGT|GATG";"CGTG|ATGT";"TGGT|TGAG";"GTGA|TGTT";"GTGG|GTGA";"TGAG|GTTG";"GGTC|GAGA";"GTCG|AGAT"]
 let d = 2
 
-let name = "rosalind_ba3j.txt"
+let name = @"C:\Users\boris\Downloads\string_reconstruction_from_read_pairs.txt"
 
 let solve name =
     let str = File.ReadAllLines name

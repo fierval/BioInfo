@@ -48,24 +48,18 @@ let isConnected (gr : string Euler) =
     let start = gr.First().Key
     
     let visited = HashSet<string>([start])
-    let queue = Queue()
-    let mutable traversed = 1
+    let queue = Queue<string>()
     queue.Enqueue(start)
     
     while queue.Count > 0 do
         let cur = queue.Dequeue()
         let next = gr.[cur]
-        let toVisit = next |> Seq.filter (fun e -> not (visited.Contains e))
-        traversed <- traversed + toVisit.Count()
+        let toVisit = next |> Seq.filter (fun e -> not (visited.Contains e)) |> Seq.toList
         for notVisited in toVisit do
             visited.Add(notVisited) |> ignore
             queue.Enqueue(notVisited)
                 
-    gr.Count = traversed
-
-let isConnectedLoop (gr : string Euler) =
-    let count = walk gr |> fun l -> l.Count
-    count = gr.Count
+    gr.Count = visited.Count
 
 // compare two eulerian cycles
 let isEq (sa : string) (sb : string) k =
