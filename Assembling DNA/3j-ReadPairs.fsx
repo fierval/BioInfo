@@ -58,8 +58,8 @@ let reconstructPath (arr : string seq) d =
             prefPath.Substring(0, k + d) + suffPath 
             else ""
 
-    let allPrefs = allEulerian prefPaths
-    let allSuffs = allEulerian suffPaths
+    let allPrefs = allEulerianInt prefPaths
+    let allSuffs = allEulerianInt suffPaths
 
     let mutable res = String.Empty
     let mutable stop = false

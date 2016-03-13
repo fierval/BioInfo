@@ -122,21 +122,24 @@ let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (graph
                                 allCycles.Add(newGraph, newRevGraph)               
     }
 
-// replace all strings by their integer equivalents.
-let convStringToIntGraph (graph : string Euler) =
-    let fwdMap = graph.Keys |> fun sq -> sq.ToList()
-    let bckwdMap = fwdMap |> Seq.mapi (fun i e -> (e, i)) |> fun sq -> sq.ToDictionary(fst, snd)
-    let mapList (lst : string List) =
-        lst |> Seq.map (fun e -> bckwdMap.[e]) |> fun s -> s.ToList()
+// convert to a differnt type of graph given a map between vertices of different types
+let convGraph (graph : 'a Euler) (convMap : Dictionary<'a, 'b>) =
+    let mapList (lst : 'a List) =
+        lst |> Seq.map (fun e -> convMap.[e]) |> fun s -> s.ToList()
 
-    let intGraph = graph |> Seq.map (fun kvp -> bckwdMap.[kvp.Key], mapList kvp.Value) |> fun sq -> sq.ToDictionary(fst, snd)
-    fwdMap, intGraph
+    let convertedGraph = graph |> Seq.map (fun kvp -> convMap.[kvp.Key], mapList kvp.Value) |> fun sq -> sq.ToDictionary(fst, snd)
+    convertedGraph
+
+let convCycles (convMap : Map<'a, 'b>) (cycle : 'a List)=
+    cycle |> Seq.map (fun e -> convMap.[e]) |> fun sq -> sq.ToList()
 
 // kinda bad. For our purposes, the new ineger vertex is generated from the current max one
 // so the function has side effects...
 let allEulerianInt (graph : string Euler) =
+    let fwdMap = graph.Keys |> fun sq -> sq.ToList()
+    let bckwdMap = fwdMap |> Seq.mapi (fun i e -> (e, i)) |> fun sq -> sq.ToDictionary(fst, snd)
      
-    let fwdMap, intGraph = convStringToIntGraph graph
+    let intGraph = convGraph graph bckwdMap
     let curV = fwdMap.Count
     let newIntVertex _ _ v =
         let strV = fwdMap.[v]
@@ -144,6 +147,9 @@ let allEulerianInt (graph : string Euler) =
         fwdMap.Add strV
         vNext
 
-    (allEulerian newIntVertex intGraph), fwdMap
+    let fwdDict = fwdMap |> Seq.mapi (fun i e -> (i, e)) |> Map.ofSeq
+
+    allEulerian newIntVertex intGraph |> Seq.map (convCycles fwdDict)
+    
 
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
