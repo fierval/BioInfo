@@ -58,15 +58,18 @@ let reconstructPath (arr : string seq) d =
             prefPath.Substring(0, k + d) + suffPath 
             else ""
 
-    let allPrefs = allEulerian prefPaths |> List.map (cycleToPath outPref inPref >> eulerToDebruijn (k - 1))
-    let allSuffs = allEulerian suffPaths |> List.map (cycleToPath outSuff inSuff >> eulerToDebruijn (k - 1))
+    let allPrefs = allEulerian prefPaths
+    let allSuffs = allEulerian suffPaths
 
     let mutable res = String.Empty
     let mutable stop = false
     while not stop do
-        for i in [0..allPrefs.Count() - 1] do
-            for j in [0..allSuffs.Count() - 1] do
-                res <- completePath allPrefs.[i] allSuffs.[j]
+        for p in allPrefs |> Seq.toList do
+            let pp = (cycleToPath outPref inPref >> eulerToDebruijn (k - 1)) p
+
+            for s in allSuffs do
+                let ss = (cycleToPath outPref inPref >> eulerToDebruijn (k - 1)) s
+                res <- completePath pp ss
                 if not (String.IsNullOrEmpty res) then stop <- true
         stop <- true
     res

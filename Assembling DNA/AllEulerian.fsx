@@ -33,22 +33,22 @@ let reverseAdj (graph : string Euler) =
 let cloneDict (dct : string Euler) =
     dct.Select(fun kvp -> new KeyValuePair<string, List<string>>(kvp.Key, kvp.Value.Select(id).ToList())).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<string, List<string>>) -> kvp.Value))
 
-let  walk (gr : string Euler) =
+let  walk (gr : 'a Euler) =
     let start = gr.First().Key
     let mutable next = start
     let mutable count = 0
-    let loop = List<string>()
+    let loop = List<'a>()
     while count = 0 || next <> start do
         loop.Add(next)
         next <- gr.[next].Single()
         count <- count + 1
     loop
 
-let isConnected (gr : string Euler) =
+let isConnected (gr : 'a Euler) =
     let start = gr.First().Key
     
-    let visited = HashSet<string>([start])
-    let queue = Queue<string>()
+    let visited = HashSet<'a>([start])
+    let queue = Queue<'a>()
     queue.Enqueue(start)
     
     while queue.Count > 0 do
@@ -62,23 +62,24 @@ let isConnected (gr : string Euler) =
     gr.Count = visited.Count
 
 // compare two eulerian cycles
-let isEq (sa : string) (sb : string) k =
-    sa = sb ||
-    (
-        let two = sa.[0..2 * k - 1]
-        let idx = sb.IndexOf two
-        let mutate = sb.[idx..] + sb.[k..idx - 1] + sb.[idx..idx + k - 1]
-        mutate = sa
-    )
+// cycles are represented as lists
+let isEq (lstA : 'a List) (lstB : 'a List) =
+    let fstElem = lstA.First()
+    let idxA = lstB.IndexOf fstElem
+    if idxA < 0 then false
+    else
+        let newTail = lstB.GetRange(0, idxA)
+        lstB.RemoveRange(0, idxA)
+        lstB.AddRange newTail
+        lstB |> Seq.toList = (lstA |> Seq.toList)
 
-let isPossibleLoop (gr : string Euler) =
+let isPossibleLoop (gr : 'a Euler) =
     not (gr |> Seq.exists (fun kvp -> kvp.Value.Count > 1))
 
-let allEulerian (graph : string Euler) =
-    [
-        let k = graph.First().Key.Length
-        let allCycles = List<string Euler * string Euler>()
-        let allLoops = List<string>()
+let allEulerian (graph : 'a Euler) =
+    seq{
+        let allCycles = List<'a Euler * 'a Euler>()
+        let allLoops = List<int>()
         let revGraph = reverseAdj graph
 
         allCycles.Add(graph, revGraph)
@@ -111,11 +112,10 @@ let allEulerian (graph : string Euler) =
                         if isConnected newGraph then
                             if isPossibleLoop newGraph then
                                 let la = walk newGraph
-                                let sa = (la |> Seq.fold (fun st e -> st + e.[0..k-1]) String.Empty) + la.[0]
-                                if not (allLoops |> Seq.exists (fun e -> isEq e sa k)) then 
+                                if not (allLoops |> Seq.exists (fun e -> isEq e la)) then 
                                     allLoops.Add(sa)
                                     yield sa
                             else
                                 allCycles.Add(newGraph, newRevGraph)               
-    ]
+    }
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
