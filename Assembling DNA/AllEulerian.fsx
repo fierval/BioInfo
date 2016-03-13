@@ -23,15 +23,15 @@ let parseStr (s : string []) : string Euler =
     undec.ToDictionary(fst, snd)
 
 (* An "reverse" adjacency list of in -> out *)
-let reverseAdj (graph : string Euler) =
+let reverseAdj (graph : 'a Euler) =
         graph
             .SelectMany(fun kvp -> seq {for v in kvp.Value -> (kvp.Key, v)})
             .GroupBy(fun (o, i) -> i)
-            .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<string, string * string>) -> gr.Select(fun (o, i) -> o).ToList()))
+            .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<'a, 'a * 'a>) -> gr.Select(fun (o, i) -> o).ToList()))
 
 (*deep copy a graph*)
-let cloneDict (dct : string Euler) =
-    dct.Select(fun kvp -> new KeyValuePair<string, List<string>>(kvp.Key, kvp.Value.Select(id).ToList())).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<string, List<string>>) -> kvp.Value))
+let cloneDict (dct : 'a Euler) =
+    dct.Select(fun kvp -> new KeyValuePair<'a, List<'a>>(kvp.Key, kvp.Value.Select(id).ToList())).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<'a, List<'a>>) -> kvp.Value))
 
 let  walk (gr : 'a Euler) =
     let start = gr.First().Key
@@ -76,10 +76,13 @@ let isEq (lstA : 'a List) (lstB : 'a List) =
 let isPossibleLoop (gr : 'a Euler) =
     not (gr |> Seq.exists (fun kvp -> kvp.Value.Count > 1))
 
-let allEulerian (graph : 'a Euler) =
+type 'a NewVertexGenerator = int -> int -> 'a -> 'a
+
+// Get all eulerian cycles. First argument defines how a new vertex is generated.
+let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (graph : 'a Euler) =
     seq{
         let allCycles = List<'a Euler * 'a Euler>()
-        let allLoops = List<int>()
+        let allLoops = List<List<'a>>()
         let revGraph = reverseAdj graph
 
         allCycles.Add(graph, revGraph)
@@ -99,7 +102,7 @@ let allEulerian (graph : 'a Euler) =
                     for j, w in curGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do // for each out edge v, w 
                         let newGraph = cloneDict curGraph
                         let newRevGraph = cloneDict revCurGraph
-                        let x = v + "_" + i.ToString() + "_" + j.ToString()
+                        let x = newVertex i j v
                         newGraph.Add(x, [w].ToList())
                         newGraph.[u].Add(x)
                         newGraph.[v].RemoveAt(newGraph.[v].IndexOf w)
@@ -113,9 +116,34 @@ let allEulerian (graph : 'a Euler) =
                             if isPossibleLoop newGraph then
                                 let la = walk newGraph
                                 if not (allLoops |> Seq.exists (fun e -> isEq e la)) then 
-                                    allLoops.Add(sa)
-                                    yield sa
+                                    allLoops.Add(la)
+                                    yield la
                             else
                                 allCycles.Add(newGraph, newRevGraph)               
     }
+
+// replace all strings by their integer equivalents.
+let convStringToIntGraph (graph : string Euler) =
+    let fwdMap = graph.Keys |> fun sq -> sq.ToList()
+    let bckwdMap = fwdMap |> Seq.mapi (fun i e -> (e, i)) |> fun sq -> sq.ToDictionary(fst, snd)
+    let mapList (lst : string List) =
+        lst |> Seq.map (fun e -> bckwdMap.[e]) |> fun s -> s.ToList()
+
+    let intGraph = graph |> Seq.map (fun kvp -> bckwdMap.[kvp.Key], mapList kvp.Value) |> fun sq -> sq.ToDictionary(fst, snd)
+    fwdMap, intGraph
+
+// kinda bad. For our purposes, the new ineger vertex is generated from the current max one
+// so the function has side effects...
+let allEulerianInt (graph : string Euler) =
+     
+    let fwdMap, intGraph = convStringToIntGraph graph
+    let curV = fwdMap.Count
+    let newIntVertex _ _ v =
+        let strV = fwdMap.[v]
+        let vNext = fwdMap.Count + 1
+        fwdMap.Add strV
+        vNext
+
+    (allEulerian newIntVertex intGraph), fwdMap
+
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr
