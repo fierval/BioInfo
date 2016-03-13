@@ -3,8 +3,8 @@ open System.IO
 
 #load @"..\Chapter 3 Molecular Clocks\environment.fsx"
 
-let suffix (pat : string) = pat.Substring(1)
-let prefix (pat : string) = pat.Substring(0, pat.Length - 1)
+let suffix (pat : string) = pat.[1..]
+let prefix (pat : string) = pat.[0..pat.Length - 1]
 let isConnected p1 p2 = (suffix p1) = (prefix p2)
 
 let overlapGraph (kmers : string []) =

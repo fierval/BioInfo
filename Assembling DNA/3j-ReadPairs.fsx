@@ -3,12 +3,14 @@ open System.Collections.Generic
 open System.Linq
 
 #load "AllEulerian.fsx"
+#load "3c-OverlapGraph.fsx"
 
 open ``3f-EulerCycle``
 open ``3g-EulerPath``
 open ``3d-3e-debruin``
 open ``3h-3i-Genome``
 open AllEulerian
+open ``3c-OverlapGraph``
 
 open System.IO
 
@@ -23,8 +25,8 @@ let completeEuler (graph : string Euler) =
 let cycleToPath (out : string) (in' : string) (graph : string) =
     let k = out.Length
     let edge = out + in'
-    let idx = graph.IndexOf edge + k
-    if idx = 0 then failwith (edge + " not found")
+    let idx = graph.IndexOf edge
+    if idx < 0 then failwith (edge + " not found")
     graph.[idx..graph.Length - k - 1] + graph.[0..idx-1]
 
 let eulerToDebruijn (k : int) (gr : string) =
