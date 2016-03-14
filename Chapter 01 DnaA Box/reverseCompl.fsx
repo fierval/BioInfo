@@ -1,7 +1,7 @@
 ﻿open System
 open System.Linq
 open System.IO
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 let compl = dict [('A', 'T'); ('C', 'G'); ('G', 'C'); ('T', 'A')]
 let revCompl (s : string) =

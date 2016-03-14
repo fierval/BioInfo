@@ -4,7 +4,7 @@ open System.Collections.Generic
 open System.IO
 open System.Runtime.CompilerServices
 
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 #load "DataStructs.fsx"
 #load "2a-2c.fsx"
 

@@ -5,7 +5,7 @@ open System.IO
 #load "2f-CyclospectrumLeaderboard.fsx"
 open ``2e-Cyclospectrum``
 open ``2f-CyclospectrumLeaderboard``
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 let convGroups (spectrum : int[]) = 
     spectrum

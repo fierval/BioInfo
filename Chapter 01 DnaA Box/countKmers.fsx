@@ -1,5 +1,5 @@
 ﻿#load "patternFreq.fsx"
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 open PatternFreq
 open System.Collections.Generic

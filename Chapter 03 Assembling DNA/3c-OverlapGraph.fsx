@@ -1,7 +1,7 @@
 ﻿open System.Linq
 open System.IO
 
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 let suffix (pat : string) = pat.[1..]
 let prefix (pat : string) = pat.[0..pat.Length - 1]

@@ -1,5 +1,5 @@
 ﻿#load "countKmers.fsx"
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 open System.Linq
 open System.Collections.Generic

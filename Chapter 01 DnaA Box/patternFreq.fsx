@@ -1,5 +1,5 @@
 ﻿open System.IO
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 let patPos (s : string) (pat : string) = 
     0 |> 

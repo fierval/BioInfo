@@ -3,7 +3,7 @@ open System.Linq
 open System.IO
 open System.Collections.Generic
 
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 type 'a Euler = Dictionary<'a, List<'a>>
 type 'a Edge = 'a * 'a

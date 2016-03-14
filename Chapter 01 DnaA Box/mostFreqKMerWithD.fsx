@@ -8,7 +8,7 @@ open System.IO
 open ReverseCompl
 open FuzzyMatch
 open System.Diagnostics
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 let changeChar (s : string) i (c : char) =
     let arr = s.ToCharArray()

@@ -1,5 +1,5 @@
 ﻿#r @"C:\Users\Boris\Documents\GitHub\Extension-Method-Pack\NorthHorizon.Common.Xmp\bin\Debug\NorthHorizon.Common.Xmp.dll"
-#load @"..\Chapter 3 Molecular Clocks\environment.fsx"
+#load @"..\Chapter 02 Molecular Clocks\environment.fsx"
 
 open System
 open System.Linq
