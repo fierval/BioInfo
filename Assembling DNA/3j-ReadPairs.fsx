@@ -18,16 +18,22 @@ let completeEuler (graph : string Euler) =
     let edge = findUnbalanced graph
     
     let out, in' = edge
+    if prefix out <> suffix in' then failwith "cannot complete graph"
     if not (graph.ContainsKey out) then graph.Add(out, [].ToList())
     graph.[out].Add(in')
     graph, out, in'
 
-let cycleToPath (out : string) (in' : string) (graph : string) =
-    let k = out.Length
-    let edge = out + in'
-    let idx = graph.IndexOf edge
-    if idx < 0 then failwith (edge + " not found")
-    graph.[idx..graph.Length - k - 1] + graph.[0..idx-1]
+let moveHeadRangeToTail (graph : 'a List) idx =
+    graph.RemoveAt(graph.Count - 1)
+    let head = graph.GetRange(0, idx)
+    graph.RemoveRange(0, idx)
+    graph.AddRange(head)
+    graph
+
+let cycleToPath (out : 'a) (in' : 'a) (graph : 'a List) =
+    let idx = graph |> Seq.windowed 2 |> Seq.findIndex (fun [|f; s|] -> f = out && s = in')
+    if idx < 0 then failwith (" not found")
+    moveHeadRangeToTail graph idx
 
 let eulerToDebruijn (k : int) (gr : string) =
     //F# 4.0: ctor's as fst class citizens.
@@ -52,13 +58,16 @@ let reconstructPath (arr : string seq) d =
     let suffPaths, outSuff, inSuff = prep suff
     let k = pref.[0].Length
 
-    let completePath (prefPath : string) (suffPath : string) =
-        let prefixCommon = prefPath.Substring(k + d)
-        let suffixCommon = suffPath.Substring(0, suffPath.Length - k - d)
+    let completePath (prefPath : List<string>) (suffPath : List<string>) =
+        let prf = prefPath |> Seq.toList
+        let suf = suffPath |> Seq.toList
+
+        let prefixCommon = prf.[k + d..]
+        let suffixCommon = suf.[0..suf.Length - k - d]
 
         if prefixCommon = suffixCommon then
-            prefPath.Substring(0, k + d) + suffPath 
-            else ""
+            (pref.[0..k + d] @ suf) |> toString
+            else String.Empty
 
     let allPrefs = allEulerianInt prefPaths
     let allSuffs = allEulerianInt suffPaths
@@ -67,10 +76,10 @@ let reconstructPath (arr : string seq) d =
     let mutable stop = false
     while not stop do
         for p in allPrefs |> Seq.toList do
-            let pp = (cycleToPath outPref inPref >> eulerToDebruijn (k - 1)) p
+            let pp = cycleToPath outPref inPref p
 
             for s in allSuffs do
-                let ss = (cycleToPath outPref inPref >> eulerToDebruijn (k - 1)) s
+                let ss = cycleToPath outPref inPref s
                 res <- completePath pp ss
                 if not (String.IsNullOrEmpty res) then stop <- true
         stop <- true

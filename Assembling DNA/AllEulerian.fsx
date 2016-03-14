@@ -42,6 +42,7 @@ let  walk (gr : 'a Euler) =
         loop.Add(next)
         next <- gr.[next].Single()
         count <- count + 1
+    loop.Add(start) //close the loop
     loop
 
 let isConnected (gr : 'a Euler) =
@@ -130,6 +131,7 @@ let convGraph (graph : 'a Euler) (convMap : Dictionary<'a, 'b>) =
     let convertedGraph = graph |> Seq.map (fun kvp -> convMap.[kvp.Key], mapList kvp.Value) |> fun sq -> sq.ToDictionary(fst, snd)
     convertedGraph
 
+// returns a real cycle
 let convCycles (convMap : Map<'a, 'b>) (cycle : 'a List)=
     cycle |> Seq.map (fun e -> convMap.[e]) |> fun sq -> sq.ToList()
 
