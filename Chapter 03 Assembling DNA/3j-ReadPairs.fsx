@@ -23,17 +23,11 @@ let completeEuler (graph : string Euler) =
     graph.[out].Add(in')
     graph, out, in'
 
-let moveHeadRangeToTail (graph : 'a List) idx =
-    graph.RemoveAt(graph.Count - 1)
-    let head = graph.GetRange(0, idx)
-    graph.RemoveRange(0, idx)
-    graph.AddRange(head)
-    graph
-
 let cycleToPath (out : 'a) (in' : 'a) (graph : 'a List) =
-    let idx = graph |> Seq.windowed 2 |> Seq.findIndex (fun [|f; s|] -> f = out && s = in')
+    let idx = findEdgeIndex out in' graph
+
     if idx < 0 then failwith (" not found")
-    moveHeadRangeToTail graph idx
+    moveHeadRangeToTail graph (idx + 1)
 
 let eulerToDebruijn (k : int) (gr : string) =
     //F# 4.0: ctor's as fst class citizens.

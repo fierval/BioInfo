@@ -13,6 +13,33 @@ open ``3d-3e-debruin``
 open ``3h-3i-Genome``
 open System.IO
 
+let findEdgeIndex (out : 'a) (in' : 'a) (graph : 'a seq) =
+    graph |> Seq.windowed 2 |> Seq.findIndex (fun [|f; s|] -> f = out && s = in')
+    
+let findFirstUniqueEdge (graph : 'a seq) =
+    let uniqueEdges = 
+        graph 
+        |> Seq.windowed 2 
+        |> Seq.groupBy id 
+        |> Seq.map (fun (e, edges) -> e, edges.Count())
+        |> Seq.filter (fun (e, cnt) -> cnt = 1)
+    if uniqueEdges |> Seq.isEmpty then failwith "no anchor edges"
+    else
+        uniqueEdges
+        |> fun s -> s.First()
+        |> fun ([|out; in'|], _) -> out, in'
+
+let findUniqueEdgeIndex gr = findFirstUniqueEdge gr |> fun (o, i) -> findEdgeIndex o i gr
+
+let moveHeadRangeToTail (graph : 'a List) idx =
+    // assuming we have a closed loop
+    graph.RemoveAt(graph.Count - 1)
+    let head = graph.GetRange(0, idx)
+    graph.RemoveRange(0, idx)
+    graph.AddRange(head)
+    graph.Add(graph.First())
+    graph
+
 let parseStr (s : string []) : string Euler =
     let undec = 
         s 
@@ -64,15 +91,19 @@ let isConnected (gr : 'a Euler) =
 
 // compare two eulerian cycles
 // cycles are represented as lists
-let isEq (lstA : 'a List) (lstB : 'a List) =
-    let fstElem = lstA.First()
-    let idxA = lstB.IndexOf fstElem
-    if idxA < 0 then false
+// TODO: really bad side effects! changes both lists
+let (===) (lstA : 'a List) (lstB : 'a List) =
+    if lstA.Count <> lstB.Count then false
     else
-        let newTail = lstB.GetRange(0, idxA)
-        lstB.RemoveRange(0, idxA)
-        lstB.AddRange newTail
-        lstB |> Seq.toList = (lstA |> Seq.toList)
+        let o, i = findFirstUniqueEdge lstA
+        let idxUniqueEdge = findEdgeIndex o i lstA
+        let newA = moveHeadRangeToTail lstA (idxUniqueEdge + 1)
+
+        let idxUniqueEdgeB = findEdgeIndex o i lstB
+        if idxUniqueEdgeB < 0 then false
+        else
+            let newB = moveHeadRangeToTail lstB (idxUniqueEdgeB + 1)
+            newB = newA
 
 let isPossibleLoop (gr : 'a Euler) =
     not (gr |> Seq.exists (fun kvp -> kvp.Value.Count > 1))
@@ -116,7 +147,7 @@ let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (graph
                         if isConnected newGraph then
                             if isPossibleLoop newGraph then
                                 let la = walk newGraph
-                                if not (allLoops |> Seq.exists (fun e -> isEq e la)) then 
+                                if not (allLoops |> Seq.exists (fun e -> e === la)) then 
                                     allLoops.Add(la)
                                     yield la
                             else
