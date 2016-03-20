@@ -31,14 +31,15 @@ let findFirstUniqueEdge (graph : 'a seq) =
 
 let findUniqueEdgeIndex gr = findFirstUniqueEdge gr |> fun (o, i) -> findEdgeIndex o i gr
 
-let moveHeadRangeToTail (graph : 'a List) idx =
+let moveHeadRangeToTail (graph : 'a seq) idx =
     // assuming we have a closed loop
-    graph.RemoveAt(graph.Count - 1)
-    let head = graph.GetRange(0, idx)
-    graph.RemoveRange(0, idx)
-    graph.AddRange(head)
-    graph.Add(graph.First())
-    graph
+    let grLst = graph.ToList()
+    grLst.RemoveAt(grLst.Count - 1)
+    let head = grLst.GetRange(0, idx)
+    grLst.RemoveRange(0, idx)
+    grLst.AddRange(head)
+    grLst.Add(grLst.First())
+    grLst
 
 let parseStr (s : string []) : string Euler =
     let undec = 
@@ -92,9 +93,11 @@ let isConnected (gr : 'a Euler) =
 // compare two eulerian cycles
 // cycles are represented as lists
 // TODO: really bad side effects! changes both lists
-let (===) (lstA : 'a List) (lstB : 'a List) =
+let areEq (lstA : 'a List) (lstB : 'a List) (comp : 'a -> 'a) =
     if lstA.Count <> lstB.Count then false
     else
+        let lstA = lstA |> Seq.map comp |> fun s -> s.ToList()
+        let lstB = lstB |> Seq.map comp |> fun s -> s.ToList()
         let o, i = findFirstUniqueEdge lstA
         let idxUniqueEdge = findEdgeIndex o i lstA
         let newA = moveHeadRangeToTail lstA (idxUniqueEdge + 1)
@@ -103,7 +106,7 @@ let (===) (lstA : 'a List) (lstB : 'a List) =
         if idxUniqueEdgeB < 0 then false
         else
             let newB = moveHeadRangeToTail lstB (idxUniqueEdgeB + 1)
-            newB = newA
+            Seq.fold (&&) true (Seq.zip newA newB |> Seq.map (fun (aa,bb) -> aa=bb))
 
 let isPossibleLoop (gr : 'a Euler) =
     not (gr |> Seq.exists (fun kvp -> kvp.Value.Count > 1))
@@ -111,7 +114,7 @@ let isPossibleLoop (gr : 'a Euler) =
 type 'a NewVertexGenerator = int -> int -> 'a -> 'a
 
 // Get all eulerian cycles. First argument defines how a new vertex is generated.
-let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (graph : 'a Euler) =
+let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (comp : 'a -> 'a) (graph : 'a Euler) =
     seq{
         let allCycles = List<'a Euler * 'a Euler>()
         let allLoops = List<List<'a>>()
@@ -147,7 +150,7 @@ let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (graph
                         if isConnected newGraph then
                             if isPossibleLoop newGraph then
                                 let la = walk newGraph
-                                if not (allLoops |> Seq.exists (fun e -> e === la)) then 
+                                if not (allLoops |> Seq.exists (fun e -> areEq e la comp)) then 
                                     allLoops.Add(la)
                                     yield la
                             else
@@ -180,9 +183,21 @@ let allEulerianInt (graph : string Euler) =
         fwdMap.Add strV
         vNext
 
+    let compInt e = bckwdMap.[fwdMap.[e]]
+
     let fwdDict = fwdMap |> Seq.mapi (fun i e -> (i, e)) |> Map.ofSeq
 
-    allEulerian newIntVertex intGraph |> Seq.map (convCycles fwdDict)
+    allEulerian newIntVertex compInt intGraph |> Seq.map (convCycles fwdDict)
     
+let allEulerainStr (graph : string Euler) = 
+    let newStrVertex = fun i j v -> v + "_" + string i + "_" + string j
+    let compStr (s : string) =
+        let idx = s.IndexOf '_'
+        if idx < 0 then s
+        else
+            s.[0..idx - 1]
+
+    allEulerian newStrVertex compStr graph
+    |> Seq.map (fun s -> s |> Seq.map compStr |> fun s -> s.ToList())
 
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr

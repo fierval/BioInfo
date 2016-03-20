@@ -18,16 +18,22 @@ let completeEuler (graph : string Euler) =
     let edge = findUnbalanced graph
     
     let out, in' = edge
-    if prefix out <> suffix in' then failwith "cannot complete graph"
     if not (graph.ContainsKey out) then graph.Add(out, [].ToList())
     graph.[out].Add(in')
     graph, out, in'
 
 let cycleToPath (out : 'a) (in' : 'a) (graph : 'a List) =
+    // move head range to tail deals with loops. 
+    // here we want to return a path
+    let shiftPath graph idx =
+        let moved = moveHeadRangeToTail graph idx
+        moved.RemoveAt(moved.Count - 1)
+        moved
+
     let idx = findEdgeIndex out in' graph
 
     if idx < 0 then failwith (" not found")
-    moveHeadRangeToTail graph (idx + 1)
+    shiftPath graph (idx + 1)
 
 let eulerToDebruijn (k : int) (gr : string) =
     //F# 4.0: ctor's as fst class citizens.
@@ -57,19 +63,19 @@ let reconstructPath (arr : string seq) d =
         let suf = suffPath |> Seq.toList
 
         let prefixCommon = prf.[k + d..]
-        let suffixCommon = suf.[0..suf.Length - k - d]
+        let suffixCommon = suf.[0..suf.Length - k - d - 1]
 
         if prefixCommon = suffixCommon then
-            (pref.[0..k + d] @ suf) |> toString
+            (prf @ suf.[suf.Length - k - d..]) |> toString
             else String.Empty
 
-    let allPrefs = allEulerianInt prefPaths
-    let allSuffs = allEulerianInt suffPaths
+    let allPrefs = allEulerainStr prefPaths
+    let allSuffs = allEulerainStr suffPaths
 
     let mutable res = String.Empty
     let mutable stop = false
     while not stop do
-        for p in allPrefs |> Seq.toList do
+        for p in allPrefs do
             let pp = cycleToPath outPref inPref p
 
             for s in allSuffs do
