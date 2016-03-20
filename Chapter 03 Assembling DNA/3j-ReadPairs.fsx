@@ -13,6 +13,7 @@ open AllEulerian
 open ``3c-OverlapGraph``
 
 open System.IO
+open System.Diagnostics
 
 let completeEuler (graph : string Euler) =
     let edge = findUnbalanced graph
@@ -79,7 +80,7 @@ let reconstructPath (arr : string seq) d =
             let pp = cycleToPath outPref inPref p
 
             for s in allSuffs do
-                let ss = cycleToPath outPref inPref s
+                let ss = cycleToPath outSuff inSuff s
                 res <- completePath pp ss
                 if not (String.IsNullOrEmpty res) then stop <- true
         stop <- true
@@ -87,6 +88,12 @@ let reconstructPath (arr : string seq) d =
 
 let arr = ["GAGA|TTGA";"TCGT|GATG";"CGTG|ATGT";"TGGT|TGAG";"GTGA|TGTT";"GTGG|GTGA";"TGAG|GTTG";"GGTC|GAGA";"GTCG|AGAT"]
 let d = 2
+
+let test () =
+    let act = reconstructPath arr d
+    let exp = "GTGGTCGTGAGATGTTGA"
+    let passed = act = exp
+    Debug.Assert passed
 
 let name = @"C:\Users\boris\Downloads\string_reconstruction_from_read_pairs.txt"
 
