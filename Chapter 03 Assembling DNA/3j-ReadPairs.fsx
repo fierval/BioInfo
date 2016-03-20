@@ -86,10 +86,10 @@ let reconstructPath (arr : string seq) d =
         stop <- true
     res
 
-let arr = ["GAGA|TTGA";"TCGT|GATG";"CGTG|ATGT";"TGGT|TGAG";"GTGA|TGTT";"GTGG|GTGA";"TGAG|GTTG";"GGTC|GAGA";"GTCG|AGAT"]
-let d = 2
-
 let test () =
+    let arr = ["GAGA|TTGA";"TCGT|GATG";"CGTG|ATGT";"TGGT|TGAG";"GTGA|TGTT";"GTGG|GTGA";"TGAG|GTTG";"GGTC|GAGA";"GTCG|AGAT"]
+    let d = 2
+
     let act = reconstructPath arr d
     let exp = "GTGGTCGTGAGATGTTGA"
     let passed = act = exp
