@@ -16,21 +16,6 @@ open System.IO
 let findEdgeIndex (out : 'a) (in' : 'a) (graph : 'a seq) =
     graph |> Seq.windowed 2 |> Seq.findIndex (fun [|f; s|] -> f = out && s = in')
     
-let findFirstUniqueEdge (graph : 'a seq) =
-    let uniqueEdges = 
-        graph 
-        |> Seq.windowed 2 
-        |> Seq.groupBy id 
-        |> Seq.map (fun (e, edges) -> e, edges.Count())
-        |> Seq.filter (fun (e, cnt) -> cnt = 1)
-    if uniqueEdges |> Seq.isEmpty then failwith "no anchor edges"
-    else
-        uniqueEdges
-        |> fun s -> s.First()
-        |> fun ([|out; in'|], _) -> out, in'
-
-let findUniqueEdgeIndex gr = findFirstUniqueEdge gr |> fun (o, i) -> findEdgeIndex o i gr
-
 let moveHeadRangeToTail (graph : 'a seq) idx =
     // assuming we have a closed loop
     let grLst = graph.ToList()
@@ -61,19 +46,19 @@ let reverseAdj (graph : 'a Euler) =
 let cloneDict (dct : 'a Euler) =
     dct.Select(fun kvp -> new KeyValuePair<'a, List<'a>>(kvp.Key, kvp.Value.Select(id).ToList())).ToDictionary((fun kvp -> kvp.Key), (fun (kvp : KeyValuePair<'a, List<'a>>) -> kvp.Value))
 
-let  walk (gr : 'a Euler) =
+let  walk (comp : 'a -> 'a) (gr : 'a Euler) =
     let start = gr.First().Key
     let mutable next = start
     let mutable count = 0
     let loop = List<'a>()
     while count = 0 || next <> start do
-        loop.Add(next)
+        loop.Add(comp next)
         next <- gr.[next].Single()
         count <- count + 1
     loop.Add(start) //close the loop
     loop
 
-let isConnected (gr : 'a Euler) =
+let isConnectedGraph (gr : 'a Euler) =
     let start = gr.First().Key
     
     let visited = HashSet<'a>([start])
@@ -88,17 +73,15 @@ let isConnected (gr : 'a Euler) =
             visited.Add(notVisited) |> ignore
             queue.Enqueue(notVisited)
                 
-    gr.Count = visited.Count
+    gr.Keys.Count = visited.Count
 
 // compare two eulerian cycles
 // cycles are represented as lists
 // TODO: really bad side effects! changes both lists
-let areEq (lstA : 'a List) (lstB : 'a List) (comp : 'a -> 'a) =
+let areEq (lstA : 'a List) (lstB : 'a List) (edge : 'a * 'a)=
     if lstA.Count <> lstB.Count then false
     else
-        let lstA = lstA |> Seq.map comp |> fun s -> s.ToList()
-        let lstB = lstB |> Seq.map comp |> fun s -> s.ToList()
-        let o, i = findFirstUniqueEdge lstA
+        let o, i = edge
         let idxUniqueEdge = findEdgeIndex o i lstA
         let newA = moveHeadRangeToTail lstA (idxUniqueEdge + 1)
 
@@ -113,9 +96,9 @@ let isPossibleLoop (gr : 'a Euler) =
 
 type 'a NewVertexGenerator = int -> int -> 'a -> 'a
 
-// Get all eulerian cycles. First argument defines how a new vertex is generated.
-let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (comp : 'a -> 'a) (graph : 'a Euler) =
-    seq{
+// Get all eulerian cycles within an almost-balanced graph.
+// First argument defines how a new vertex is generated.
+let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (comp : 'a -> 'a) (edge : 'a * 'a) (graph : 'a Euler) =
         let allCycles = List<'a Euler * 'a Euler>()
         let allLoops = List<List<'a>>()
         let revGraph = reverseAdj graph
@@ -147,15 +130,14 @@ let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (comp 
                         newRevGraph.[v].RemoveAt(newRevGraph.[v].IndexOf u)
                         newRevGraph.Add(x, [u].ToList())
                         newRevGraph.[w].Add(x)
-                        if isConnected newGraph then
+                        if isConnectedGraph newGraph then
                             if isPossibleLoop newGraph then
-                                let la = walk newGraph
-                                if not (allLoops |> Seq.exists (fun e -> areEq e la comp)) then 
+                                let la = walk comp newGraph
+                                if not (allLoops |> Seq.exists (fun e -> areEq e la edge)) then 
                                     allLoops.Add(la)
-                                    yield la
                             else
                                 allCycles.Add(newGraph, newRevGraph)               
-    }
+        allLoops |> Seq.toList
 
 // convert to a differnt type of graph given a map between vertices of different types
 let convGraph (graph : 'a Euler) (convMap : Dictionary<'a, 'b>) =
@@ -171,25 +153,27 @@ let convCycles (convMap : Map<'a, 'b>) (cycle : 'a List)=
 
 // kinda bad. For our purposes, the new ineger vertex is generated from the current max one
 // so the function has side effects...
-let allEulerianInt (graph : string Euler) =
-    let fwdMap = graph.Keys |> fun sq -> sq.ToList()
+let allEulerianInt edge (graph : string Euler) =
+    let o, i = edge
+    let fwdMap = graph.Keys |> Seq.distinct |> fun sq -> sq.ToList()
     let bckwdMap = fwdMap |> Seq.mapi (fun i e -> (e, i)) |> fun sq -> sq.ToDictionary(fst, snd)
      
     let intGraph = convGraph graph bckwdMap
-    let curV = fwdMap.Count
     let newIntVertex _ _ v =
         let strV = fwdMap.[v]
-        let vNext = fwdMap.Count + 1
+        let vNext = fwdMap.Count
         fwdMap.Add strV
         vNext
 
     let compInt e = bckwdMap.[fwdMap.[e]]
 
-    let fwdDict = fwdMap |> Seq.mapi (fun i e -> (i, e)) |> Map.ofSeq
+    let outp = allEulerian newIntVertex compInt (bckwdMap.[o], bckwdMap.[i]) intGraph
 
-    allEulerian newIntVertex compInt intGraph |> Seq.map (convCycles fwdDict)
+    let fwdDict = fwdMap |> Seq.mapi (fun i e -> (i, e)) |> Map.ofSeq
     
-let allEulerainStr (graph : string Euler) = 
+    outp |> Seq.map (convCycles fwdDict)
+
+let allEulerianStr edge (graph : string Euler) = 
     let newStrVertex = fun i j v -> v + "_" + string i + "_" + string j
     let compStr (s : string) =
         let idx = s.IndexOf '_'
@@ -197,7 +181,10 @@ let allEulerainStr (graph : string Euler) =
         else
             s.[0..idx - 1]
 
-    allEulerian newStrVertex compStr graph
+    allEulerian newStrVertex compStr edge graph
     |> Seq.map (fun s -> s |> Seq.map compStr |> fun s -> s.ToList())
+
+let allCycles = List<int Euler * int Euler>()
+let allLoops = List<List<int>>()
 
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr

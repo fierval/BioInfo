@@ -70,8 +70,8 @@ let reconstructPath (arr : string seq) d =
             (prf @ suf.[suf.Length - k - d..]) |> toString
             else String.Empty
 
-    let allPrefs = allEulerainStr prefPaths
-    let allSuffs = allEulerainStr suffPaths
+    let allPrefs = allEulerianInt (outPref, inPref) prefPaths
+    let allSuffs = allEulerianInt (outSuff, inSuff) suffPaths
 
     let mutable res = String.Empty
     let mutable stop = false
@@ -100,5 +100,6 @@ let name = @"C:\Users\boris\Downloads\string_reconstruction_from_read_pairs.txt"
 let solve name =
     let str = File.ReadAllLines name
     let [|k; d|] = str.[0].Trim().Split([|' '|], 2) |> Array.map (fun e -> int e)
-    let sol = reconstructPath (str.[1..]) d
+    let arr = str.[1..]
+    let sol = reconstructPath arr d
     File.WriteAllText(@"c:\temp\fromParis.txt", sol)
