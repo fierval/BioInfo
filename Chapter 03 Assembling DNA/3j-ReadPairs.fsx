@@ -15,7 +15,7 @@ open ``3c-OverlapGraph``
 open System.IO
 open System.Diagnostics
 
-let completeEuler (graph : string Euler) =
+let completeEuler (graph : 'a Euler) =
     let edge = findUnbalanced graph
     
     let out, in' = edge
@@ -40,8 +40,8 @@ let eulerToDebruijn (k : int) (gr : string) =
     //F# 4.0: ctor's as fst class citizens.
     gr.ToCharArray() |> Array.chunkBySize k |> Array.map String |> toString 
 
-let prep (nucleotides : string seq) =
-    nucleotides |> debruijn |> completeEuler //|> findPath |> toString
+let prep (nucleotides : (string * string) list) =
+    nucleotides |> debruijnPaired |> completeEuler //|> findPath |> toString
 
 let parseAndSplitPairs (pairs : string seq) =
     pairs 
@@ -50,47 +50,34 @@ let parseAndSplitPairs (pairs : string seq) =
             let arr = s.Trim().Split([|'|'|])
             arr.[0], arr.[1])
     |> Seq.toList
-    |> List.unzip    
+ 
 
-let reconstructPath (arr : string seq) d =
-    let pref, suff = parseAndSplitPairs arr
+let completePath k d (prfSuf : (string list * string list)) =
+    let prf, suf = prfSuf
+    let prefixCommon = prf.[k + d..]
+    let suffixCommon = suf.[0..suf.Length - k - d - 1]
 
-    let prefPaths, outPref, inPref = prep pref
-    let suffPaths, outSuff, inSuff = prep suff
-    let k = pref.[0].Length
+    if prefixCommon = suffixCommon then
+        (prf @ suf.[suf.Length - k - d..]) |> toString
+        else String.Empty
 
-    let completePath (prefPath : List<string>) (suffPath : List<string>) =
-        let prf = prefPath |> Seq.toList
-        let suf = suffPath |> Seq.toList
-
-        let prefixCommon = prf.[k + d..]
-        let suffixCommon = suf.[0..suf.Length - k - d - 1]
-
-        if prefixCommon = suffixCommon then
-            (prf @ suf.[suf.Length - k - d..]) |> toString
-            else String.Empty
-
-    let allPrefs = allEulerianInt (outPref, inPref) prefPaths
-    let allSuffs = allEulerianInt (outSuff, inSuff) suffPaths
-
-    let mutable res = String.Empty
-    let mutable stop = false
-    while not stop do
-        for p in allPrefs do
-            let pp = cycleToPath outPref inPref p
-
-            for s in allSuffs do
-                let ss = cycleToPath outSuff inSuff s
-                res <- completePath pp ss
-                if not (String.IsNullOrEmpty res) then stop <- true
-        stop <- true
-    res
+let constructPathFromPairs (arr : string []) d =
+    let sq = parseAndSplitPairs arr
+    let graph, out, in' = prep sq
+    let k = (fst out).Length
+    let edge = out, in'
+    let pairedEulerian = allEulerianPaired edge graph
+    pairedEulerian 
+    |> Seq.map (fun gr -> gr |> Seq.toList |> List.unzip |> completePath k d)
+    |> Seq.filter (fun s -> not (String.IsNullOrEmpty s))
+    |> Seq.take 1
+    |> Seq.exactlyOne
 
 let test () =
     let arr = ["GAGA|TTGA";"TCGT|GATG";"CGTG|ATGT";"TGGT|TGAG";"GTGA|TGTT";"GTGG|GTGA";"TGAG|GTTG";"GGTC|GAGA";"GTCG|AGAT"]
     let d = 2
 
-    let act = reconstructPath arr d
+    let act = constructPathFromPairs arr d
     let exp = "GTGGTCGTGAGATGTTGA"
     let passed = act = exp
     Debug.Assert passed

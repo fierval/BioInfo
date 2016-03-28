@@ -151,6 +151,25 @@ let convGraph (graph : 'a Euler) (convMap : Dictionary<'a, 'b>) =
 let convCycles (convMap : Map<'a, 'b>) (cycle : 'a List)=
     cycle |> Seq.map (fun e -> convMap.[e]) |> fun sq -> sq.ToList()
 
+type PairedVals<'a> = 'a * 'a
+let allEulerianPaired edge (graph : PairedVals<string> Euler) =
+    let o, i = edge
+    
+    let newStrVertex i j (v : PairedVals<string>) = 
+        let suff = "_" + string i + "_" + string j
+        let frst, scnd = v
+        (frst + suff), (scnd + suff)
+
+    let compStr (v : PairedVals<string>) =
+        let first, scnd = v // since both original strings are of the same length, it's enough to search one of them for "_"
+        let idx = first.IndexOf '_'
+        if idx < 0 then v
+        else
+            first.[0..idx - 1], scnd.[0..idx - 1]
+
+    allEulerian newStrVertex compStr edge graph
+    |> Seq.map (fun s -> s |> Seq.map compStr |> fun s -> s.ToList())
+
 // kinda bad. For our purposes, the new ineger vertex is generated from the current max one
 // so the function has side effects...
 let allEulerianInt edge (graph : string Euler) =

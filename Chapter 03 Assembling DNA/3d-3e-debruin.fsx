@@ -36,9 +36,14 @@ let solveStr name =
     let sol = debruijnString s n |> decorate
     File.WriteAllLines(@"c:\temp\debruin.txt", sol)
 
-let debruijn (kmers : string seq) : string Euler =
-    kmers.ToLookup(prefix, suffix)
-        .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<string, string>) -> gr.OrderBy(fun e -> e).ToList()))
+let debruijnBase (pref : 'a -> 'a) (suff : 'a -> 'a) (kmers : 'a seq) : 'a Euler = 
+    kmers.ToLookup(pref, suff)
+        .ToDictionary((fun gr-> gr.Key), (fun (gr : IGrouping<'a, 'a>) -> gr.OrderBy(fun e -> e).ToList()))
+
+let debruijnPaired : seq<string * string> -> Euler<string * string> = 
+    debruijnBase (fun (f, s) -> prefix f, prefix s) (fun (f, s) -> suffix f, suffix s)
+
+let debruijn = debruijnBase prefix suffix
 
 let kmers = [|"GAGG"; "CAGG"; "GGGG"; "GGGA"; "CAGG"; "AGGG"; "GGAG"|]
 
