@@ -174,9 +174,9 @@ let allEulerianPaired edge (graph : PairedVals<string> Euler) =
     allEulerian newStrVertex compStr edge graph
     |> Seq.map (fun s -> s |> Seq.map compStr |> fun s -> s.ToList())
 
-// kinda bad. For our purposes, the new ineger vertex is generated from the current max one
+// TODO: Memory optimization. For our purposes, the new ineger vertex is generated from the current max one
 // so the function has side effects...
-let allEulerianInt edge (graph : string Euler) =
+let allEulerianInt edge (graph : 'a Euler) =
     let o, i = edge
     let fwdMap = graph.Keys |> Seq.distinct |> fun sq -> sq.ToList()
     let bckwdMap = fwdMap |> Seq.mapi (fun i e -> (e, i)) |> fun sq -> sq.ToDictionary(fst, snd)
@@ -195,19 +195,3 @@ let allEulerianInt edge (graph : string Euler) =
     let fwdDict = fwdMap |> Seq.mapi (fun i e -> (i, e)) |> Map.ofSeq
     
     outp |> Seq.map (convCycles fwdDict)
-
-let allEulerianStr edge (graph : string Euler) = 
-    let newStrVertex = fun i j v -> v + "_" + string i + "_" + string j
-    let compStr (s : string) =
-        let idx = s.IndexOf '_'
-        if idx < 0 then s
-        else
-            s.[0..idx - 1]
-
-    allEulerian newStrVertex compStr edge graph
-    |> Seq.map (fun s -> s |> Seq.map compStr |> fun s -> s.ToList())
-
-let allCycles = List<PairedVals<string> Euler * PairedVals<string> Euler>()
-let allLoops = List<List<PairedVals<string>>>()
-
-let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr

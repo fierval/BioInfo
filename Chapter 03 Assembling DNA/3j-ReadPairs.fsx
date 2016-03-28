@@ -78,7 +78,7 @@ let test () =
     let passed = act = exp
     Debug.Assert passed
 
-let name = @"C:\Users\boris\Downloads\string_reconstruction_from_read_pairs.txt"
+let name = "rosalind_ba3j.txt"
 
 let solve name =
     let str = File.ReadAllLines name
