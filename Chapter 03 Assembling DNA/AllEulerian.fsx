@@ -99,10 +99,12 @@ type 'a NewVertexGenerator = int -> int -> 'a -> 'a
 // Get all eulerian cycles within an almost-balanced graph.
 // First argument defines how a new vertex is generated.
 let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (comp : 'a -> 'a) (edge : 'a * 'a) (graph : 'a Euler) =
-        let allCycles = List<'a Euler * 'a Euler>()
-        let allLoops = List<List<'a>>()
-        let revGraph = reverseAdj graph
+    let allCycles = List<'a Euler * 'a Euler>()
+    let allLoops = List<List<'a>>()
+    let revGraph = reverseAdj graph
 
+    if isPossibleLoop graph then allLoops.Add(walk comp graph)
+    else
         allCycles.Add(graph, revGraph)
 
         let isDone () =
@@ -113,8 +115,10 @@ let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (comp 
             
         while not (isDone ()) do
             let curGraph, revCurGraph = allCycles.First()
-            let outVertices = revCurGraph.Where(fun kvp -> kvp.Value.Count > 1).Select(fun kvp -> kvp.Key)
             allCycles.RemoveAt(0)
+
+            let outVertices = revCurGraph.Where(fun kvp -> kvp.Value.Count > 1).Select(fun kvp -> kvp.Key)
+
             for v in outVertices do //for each in-edge (u, v) into v
                 for i, u in revCurGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do// all edges u coming into v
                     for j, w in curGraph.[v] |> Seq.mapi (fun i e -> (i, e)) do // for each out edge v, w 
@@ -137,7 +141,7 @@ let allEulerian<'a when 'a : equality> (newVertex: 'a NewVertexGenerator) (comp 
                                     allLoops.Add(la)
                             else
                                 allCycles.Add(newGraph, newRevGraph)               
-        allLoops |> Seq.toList
+    allLoops |> Seq.toList
 
 // convert to a differnt type of graph given a map between vertices of different types
 let convGraph (graph : 'a Euler) (convMap : Dictionary<'a, 'b>) =
@@ -203,7 +207,7 @@ let allEulerianStr edge (graph : string Euler) =
     allEulerian newStrVertex compStr edge graph
     |> Seq.map (fun s -> s |> Seq.map compStr |> fun s -> s.ToList())
 
-let allCycles = List<int Euler * int Euler>()
-let allLoops = List<List<int>>()
+let allCycles = List<PairedVals<string> Euler * PairedVals<string> Euler>()
+let allLoops = List<List<PairedVals<string>>>()
 
 let graph = File.ReadAllLines(Path.Combine(__SOURCE_DIRECTORY__, @"all_eulerian.txt")) |> parseStr

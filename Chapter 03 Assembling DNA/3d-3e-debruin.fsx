@@ -43,7 +43,7 @@ let debruijnBase (pref : 'a -> 'a) (suff : 'a -> 'a) (kmers : 'a seq) : 'a Euler
 let debruijnPaired : seq<string * string> -> Euler<string * string> = 
     debruijnBase (fun (f, s) -> prefix f, prefix s) (fun (f, s) -> suffix f, suffix s)
 
-let debruijn = debruijnBase prefix suffix
+let debruijn : seq<string> -> Euler<string> = debruijnBase prefix suffix
 
 let kmers = [|"GAGG"; "CAGG"; "GGGG"; "GGGA"; "CAGG"; "AGGG"; "GGAG"|]
 

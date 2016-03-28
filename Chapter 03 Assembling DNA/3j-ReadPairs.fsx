@@ -40,9 +40,6 @@ let eulerToDebruijn (k : int) (gr : string) =
     //F# 4.0: ctor's as fst class citizens.
     gr.ToCharArray() |> Array.chunkBySize k |> Array.map String |> toString 
 
-let prep (nucleotides : (string * string) list) =
-    nucleotides |> debruijnPaired |> completeEuler //|> findPath |> toString
-
 let parseAndSplitPairs (pairs : string seq) =
     pairs 
     |> Seq.map 
@@ -50,7 +47,6 @@ let parseAndSplitPairs (pairs : string seq) =
             let arr = s.Trim().Split([|'|'|])
             arr.[0], arr.[1])
     |> Seq.toList
- 
 
 let completePath k d (prfSuf : (string list * string list)) =
     let prf, suf = prfSuf
@@ -61,14 +57,14 @@ let completePath k d (prfSuf : (string list * string list)) =
         (prf @ suf.[suf.Length - k - d..]) |> toString
         else String.Empty
 
-let constructPathFromPairs (arr : string []) d =
+let constructPathFromPairs (arr : string seq) d =
     let sq = parseAndSplitPairs arr
-    let graph, out, in' = prep sq
-    let k = (fst out).Length
+    let graph, out, in' = sq |> debruijnPaired |> completeEuler
+    let k = (fst (sq.First())).Length
     let edge = out, in'
     let pairedEulerian = allEulerianPaired edge graph
     pairedEulerian 
-    |> Seq.map (fun gr -> gr |> Seq.toList |> List.unzip |> completePath k d)
+    |> Seq.map (fun gr -> gr |> cycleToPath out in' |> Seq.toList |> List.unzip |> completePath k d)
     |> Seq.filter (fun s -> not (String.IsNullOrEmpty s))
     |> Seq.take 1
     |> Seq.exactlyOne
@@ -88,5 +84,5 @@ let solve name =
     let str = File.ReadAllLines name
     let [|k; d|] = str.[0].Trim().Split([|' '|], 2) |> Array.map (fun e -> int e)
     let arr = str.[1..]
-    let sol = reconstructPath arr d
+    let sol = constructPathFromPairs arr d
     File.WriteAllText(@"c:\temp\fromParis.txt", sol)
