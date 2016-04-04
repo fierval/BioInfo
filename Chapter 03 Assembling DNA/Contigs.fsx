@@ -18,25 +18,25 @@ open ``3d-3e-debruin``
 open ``3h-3i-Genome``
 open SpanningTree
 
-// see if we can walk the tree and so it must be a cycle
-let isCycle (tree : 'a seq) (graph : 'a Euler) (revGraph : 'a Euler) =
-    if tree.Except graph.Keys |> Seq.isEmpty && tree.Except revGraph.Keys |> Seq.isEmpty then
-        let gr = tree |> Seq.map (fun v -> v, graph.[v]) |> fun s -> s.ToDictionary(fst, snd)
-        let walked = walk id gr
-        walked.Count = tree.Count() + 1 // when it's a loop it ends with the same vertice it started
-    else
-        false
-
 let findIsolatedCycles (graph : 'a Euler) =
     let trees = findMaxSpanTrees graph |> Seq.toList
     let revGraph = reverseAdj graph
+
+    let isPossibleLoop (tree : 'a SpanningTree) (graph : 'a Euler) =
+        tree |> Seq.map (fun v -> graph.[v]) |> Seq.exists (fun l -> l.Count <> 1) |> not
+
+    let isCycle (tree : 'a SpanningTree) =
+        tree.Except graph.Keys |> Seq.isEmpty && 
+        tree.Except revGraph.Keys |> Seq.isEmpty &&
+        isPossibleLoop tree graph &&
+        isPossibleLoop tree revGraph
 
     // fully connected?
     if trees.Length = 1 then Seq.empty
     else
         seq {
             for tree in trees do
-                if isCycle tree graph revGraph then yield tree
+                if isCycle tree then yield tree
         }
 
 let findMaxNonBranching (graph : 'a Euler) =
