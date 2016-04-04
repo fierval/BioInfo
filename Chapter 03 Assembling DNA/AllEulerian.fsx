@@ -37,10 +37,10 @@ let parseStr (s : string []) : string Euler =
 
 (* A "reverse" adjacency list of in -> out *)
 let reverseAdj (graph : 'a Euler) =
-        graph
-            .SelectMany(fun kvp -> seq {for v in kvp.Value -> (kvp.Key, v)})
-            .GroupBy(fun (o, i) -> i)
-            .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<'a, 'a * 'a>) -> gr.Select(fun (o, i) -> o).ToList()))
+    graph
+        .SelectMany(fun kvp -> seq {for v in kvp.Value -> (kvp.Key, v)})
+        .GroupBy(fun (o, i) -> i)
+        .ToDictionary((fun gr -> gr.Key), (fun (gr : IGrouping<'a, 'a * 'a>) -> gr.Select(fun (o, i) -> o).ToList()))
 
 (*deep copy a graph*)
 let cloneDict (dct : 'a Euler) =
