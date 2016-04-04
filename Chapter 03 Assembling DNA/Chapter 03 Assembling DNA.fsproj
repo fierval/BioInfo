@@ -63,6 +63,8 @@
     <None Include="3j-ReadPairs.fsx" />
     <None Include="AllEulerian.fsx" />
     <None Include="all_eulerian.txt" />
+    <None Include="Contigs.fsx" />
+    <None Include="SpanningTree.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

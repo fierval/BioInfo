@@ -35,7 +35,7 @@ let parseStr (s : string []) : string Euler =
 
     undec.ToDictionary(fst, snd)
 
-(* An "reverse" adjacency list of in -> out *)
+(* A "reverse" adjacency list of in -> out *)
 let reverseAdj (graph : 'a Euler) =
         graph
             .SelectMany(fun kvp -> seq {for v in kvp.Value -> (kvp.Key, v)})
