@@ -19,34 +19,30 @@ open ``3h-3i-Genome``
 type 'a SpanningTree = 'a HashSet
 
 let findMaxSpanTrees (graph : 'a Euler) : SpanningTree<'a> seq =
+    let revGraph = reverseAdj graph
+    let mutable remaining = HashSet(graph.Keys)
+    let allKeys = revGraph.Keys.Union graph.Keys |> Seq.toList
+
     // create a spanning tree, starting from a vertex
     let createTree (graph : 'a Euler) (revGraph : 'a Euler) start =
         let fromIntoVert v =
-            let fromStart = graph.[v]
-            let intoStart = revGraph.[v]
+            let fromStart = if graph.ContainsKey v then graph.[v] else List()
+            let intoStart = if revGraph.ContainsKey v then revGraph.[v] else List()
             fromStart.Union intoStart
 
         let spanning = HashSet(fromIntoVert start)
-        let mutable prevCount = spanning.Count
-        let mutable isFirst = true
-
-        let fromStart = graph.[start]
 
         let rec appendToSpanning (spanning : HashSet<'a>) prevCount =
-            if prevCount = spanning.Count then spanning
+            if spanning.Count = allKeys.Length || prevCount = spanning.Count then spanning
             else
-                let prevCount = spanning.Count
-                spanning
-                |> Seq.map (fun v -> fromIntoVert v)
-                |> Seq.collect id
-                |> Seq.iter (spanning.Add>>ignore)
-                appendToSpanning spanning prevCount
+                let canReach = 
+                    spanning
+                    |> Seq.map (fun v -> fromIntoVert v)
+                    |> Seq.collect id
+                let newSpanning = canReach |> fun s -> s.Union spanning |> HashSet
+                appendToSpanning newSpanning spanning.Count
 
         appendToSpanning spanning 0
-
-    let revGraph = reverseAdj graph
-    let mutable stop = false
-    let mutable remaining = HashSet(graph.Keys)
 
     seq {
         while not (remaining |> Seq.isEmpty) do
@@ -55,3 +51,6 @@ let findMaxSpanTrees (graph : 'a Euler) : SpanningTree<'a> seq =
             remaining <- remaining.Except maxTree |> HashSet
             yield maxTree
     }
+
+let arr = ["ATG"; "ATG"; "TGT"; "TGG"; "CAT"; "GGA"; "GAT"; "AGA"; "UVX"; "VXT"; "XTU"; "TUV"]
+let graph = debruijn arr
