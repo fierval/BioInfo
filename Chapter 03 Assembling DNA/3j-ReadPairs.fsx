@@ -36,10 +36,6 @@ let cycleToPath (out : 'a) (in' : 'a) (graph : 'a List) =
     if idx < 0 then failwith (" not found")
     shiftPath graph (idx + 1)
 
-let eulerToDebruijn (k : int) (gr : string) =
-    //F# 4.0: ctor's as fst class citizens.
-    gr.ToCharArray() |> Array.chunkBySize k |> Array.map String |> toString 
-
 let parseAndSplitPairs (pairs : string seq) =
     pairs 
     |> Seq.map 
@@ -78,7 +74,14 @@ let test () =
     let passed = act = exp
     Debug.Assert passed
 
-let name = "rosalind_ba3j.txt"
+let test1() = 
+    let arr = ["GACC|GCGC"; "ACCG|CGCC"; "CCGA|GCCG"; "CGAG|CCGG"; "GAGC|CGGA"]
+    let d = 2
+
+    let act = constructPathFromPairs arr d
+    let exp = "GACCGAGCGCCGGA"
+    let passed = act = exp
+    Debug.Assert passed
 
 let solve name =
     let str = File.ReadAllLines name

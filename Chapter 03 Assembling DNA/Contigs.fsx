@@ -17,8 +17,9 @@ open ``3g-EulerPath``
 open ``3d-3e-debruin``
 open ``3h-3i-Genome``
 open SpanningTree
+open System.IO
 
-let findIsolatedCycles (graph : 'a Euler) =
+let findIsolatedCycles (graph : 'a Euler) (appendFirst : bool) =
     let trees = findMaxSpanTrees graph |> Seq.toList
     let revGraph = reverseAdj graph
 
@@ -31,9 +32,17 @@ let findIsolatedCycles (graph : 'a Euler) =
         isPossibleLoop tree graph &&
         isPossibleLoop tree revGraph
 
+    let walkCycle (tree : 'a SpanningTree) =
+        let rec moveNext (cycle : 'a list) frst =
+            if frst = graph.[cycle.Head].Single() then (if appendFirst then frst::cycle else cycle) |> List.rev
+            else
+                moveNext (graph.[cycle.Head].Single()::cycle) frst
+
+        moveNext [tree.First()] (tree.First())
     [|
         for tree in trees do
-            if isCycle tree then yield tree |> Seq.toList
+            if isCycle tree then 
+                yield tree |> walkCycle
     |]
 
 let findMaxNonBranching (graph : 'a Euler) =
@@ -68,16 +77,44 @@ let findMaxNonBranching (graph : 'a Euler) =
                 ]
     |]
 
-let findContigs (arr : string seq) =
-    let graph = debruijn arr
+let toStringFromInt (l : int seq) = 
+    Seq.fold (fun acc e -> acc + " -> " + e.ToString()) String.Empty l
+    |> fun s -> s.[4..]
+
+let findContigs (graph : 'a Euler) (decorator : 'a seq -> string) appendFirst =
     let fromNonLoops = async {return findMaxNonBranching graph}
-    let fromLoops = async {return findIsolatedCycles graph}
+    let fromLoops = async {return findIsolatedCycles graph appendFirst}
     seq {yield fromNonLoops; yield fromLoops} 
     |> Async.Parallel 
     |> Async.RunSynchronously 
     |> Array.concat
-    |> Array.map toString
+    |> Array.map decorator
 
 
-let arr = ["ATG"; "ATG"; "TGT"; "TGG"; "CAT"; "GGA"; "GAT"; "AGA"]
-findContigs arr
+let arr = [|"1 -> 2"; "2 -> 3"; "3 -> 4,5"; "6 -> 7"; "7 -> 6"|]
+
+let name = @"C:\Users\boris\Downloads\maximal_nonbranching_paths.txt"
+let out = Some @"C:\Users\boris\Downloads\maximal_nonbranching_out.txt"
+
+let solveTest (out : string option) name =
+    let test, out = 
+        match out with
+        | Some out -> true, out
+        | None -> false, ""
+
+    if test && not (File.Exists out) then failwith "Output does not exist"
+    if not (File.Exists name) then failwith "Input does not exist"
+
+    let graph = File.ReadAllLines name |> parse
+    //let graph = File.ReadAllLines |> debruijn
+
+    let actual = findContigs graph toStringFromInt true
+    
+    if test then
+        let expected = File.ReadAllLines out
+        actual.Length = expected.Length && actual.Except expected |> Seq.isEmpty && expected.Except actual |> Seq.isEmpty
+    else
+        File.WriteAllLines(@"c:\temp\contigs.txt", actual)
+        true
+
+let solve = solveTest None
