@@ -31,13 +31,10 @@ let findIsolatedCycles (graph : 'a Euler) =
         isPossibleLoop tree graph &&
         isPossibleLoop tree revGraph
 
-    // fully connected?
-    if trees.Length = 1 then Seq.empty
-    else
-        seq {
-            for tree in trees do
-                if isCycle tree then yield tree
-        }
+    [|
+        for tree in trees do
+            if isCycle tree then yield tree |> Seq.toList
+    |]
 
 let findMaxNonBranching (graph : 'a Euler) =
     let revGraph = reverseAdj graph
@@ -47,21 +44,39 @@ let findMaxNonBranching (graph : 'a Euler) =
             graph 
             |> Seq.filter (fun kvp -> kvp.Value.Count > 1) 
             |> Seq.map (fun kvp -> kvp.Key)
-    
-    let crossRoads = zeroIn.Union moreThanOneOut |> HashSet
 
-    seq {
+    let moreThanOneIn =
+        revGraph
+        |> Seq.filter (fun kvp -> kvp.Value.Count > 1)
+        |> Seq.map (fun kvp -> kvp.Key)
+
+    let crossRoads = zeroIn.Union moreThanOneOut |> fun u -> u.Union moreThanOneIn |> HashSet
+
+    [|
         for start in crossRoads do
             let next = graph.[start]
             let contig = [start].ToList()
             for v in next do
-                contig.Add v
-                if crossRoads.Contains v then yield contig |> Seq.toList
-    }
+                yield [
+                    yield start
+                    let mutable x = v
+                    let mutable stop = false
+                    while not stop do
+                        yield x
+                        stop <- not (graph.ContainsKey x) || crossRoads.Contains x
+                        if not stop then x <- graph.[x].Single()
+                ]
+    |]
 
 let findContigs (arr : string seq) =
     let graph = debruijn arr
-    findMaxNonBranching graph |> Seq.toList
+    let fromNonLoops = async {return findMaxNonBranching graph}
+    let fromLoops = async {return findIsolatedCycles graph}
+    seq {yield fromNonLoops; yield fromLoops} 
+    |> Async.Parallel 
+    |> Async.RunSynchronously 
+    |> Array.concat
+    |> Array.map toString
 
 
 let arr = ["ATG"; "ATG"; "TGT"; "TGG"; "CAT"; "GGA"; "GAT"; "AGA"]
