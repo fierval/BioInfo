@@ -73,13 +73,6 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
-  <Import Project="..\packages\Alea.CUDA.2.2.0.3307\build\Alea.CUDA.targets" Condition="Exists('..\packages\Alea.CUDA.2.2.0.3307\build\Alea.CUDA.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Alea.CUDA.2.2.0.3307\build\Alea.CUDA.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Alea.CUDA.2.2.0.3307\build\Alea.CUDA.targets'))" />
-  </Target>
   <ItemGroup>
     <None Include="lookandsay.fsx" />
     <Compile Include="lookAndSayScan.fs" />
@@ -112,26 +105,30 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Alea.CUDA">
-      <HintPath>..\packages\Alea.CUDA.2.2.0.3307\lib\net40\Alea.CUDA.dll</HintPath>
+      <HintPath>..\packages\Alea.CUDA.2.1.2.3274\lib\net40\Alea.CUDA.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Alea.CUDA" />
     <Reference Include="Alea.CUDA.IL">
-      <HintPath>..\packages\Alea.CUDA.IL.2.2.0.3307\lib\net40\Alea.CUDA.IL.dll</HintPath>
+      <HintPath>..\packages\Alea.CUDA.IL.2.1.2.3274\lib\net40\Alea.CUDA.IL.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Alea.CUDA.IL" />
     <Reference Include="Alea.CUDA.Unbound">
-      <HintPath>..\packages\Alea.CUDA.Unbound.2.2.0.3307\lib\net40\Alea.CUDA.Unbound.dll</HintPath>
+      <HintPath>..\packages\Alea.CUDA.Unbound.2.1.2.3274\lib\net40\Alea.CUDA.Unbound.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Alea.CUDA.Unbound" />
     <Reference Include="Alea.IL">
-      <HintPath>..\packages\Alea.IL.2.2.0.3307\lib\net40\Alea.IL.dll</HintPath>
+      <HintPath>..\packages\Alea.IL.2.1.2.3274\lib\net40\Alea.IL.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Alea.IL" />
     <Reference Include="FSharp.Charting">
       <HintPath>..\packages\FSharp.Charting.0.90.13\lib\net40\FSharp.Charting.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Solver.Foundation" />
+    <Reference Include="FSharp.Charting" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -143,6 +140,13 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
   </ItemGroup>
+  <Import Project="..\packages\Alea.CUDA.2.1.2.3274\build\Alea.CUDA.targets" Condition="Exists('..\packages\Alea.CUDA.2.1.2.3274\build\Alea.CUDA.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Alea.CUDA.2.1.2.3274\build\Alea.CUDA.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Alea.CUDA.2.1.2.3274\build\Alea.CUDA.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
